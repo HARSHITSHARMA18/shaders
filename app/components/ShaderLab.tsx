@@ -72,7 +72,9 @@ export function ShaderLab() {
   const [copied, setCopied] = useState(false);
 
   const snippet = useMemo(
-    () => `<ThermalPixelShader
+    () => `import { ThermalPixelShader } from "@/components/ThermalPixelShader";
+
+<ThermalPixelShader
   cellSize={${settings.cellSize}}
   brushRadius={${settings.brushRadius}}
   heat={${settings.heat.toFixed(2)}}
@@ -224,17 +226,17 @@ export function ShaderLab() {
             {codeOpen ? "Hide code" : "View code"}
           </button>
           <button className="primaryButton" type="button" onClick={copyCode}>
-            {copied ? "Copied" : "Copy code"}
+            {copied ? "Copied" : "Copy JSX"}
           </button>
         </div>
       </aside>
 
       <footer className="codebar">
         <div>
-          <span className="codePrompt">npm</span>
-          <code>solace add thermal-pixel-ink</code>
+          <span className="codePrompt">import</span>
+          <code>ThermalPixelShader from your Solace block</code>
         </div>
-        <button type="button" onClick={copyCode}>{copied ? "Copied to clipboard" : "Copy component"}</button>
+        <button type="button" onClick={copyCode}>{copied ? "Copied to clipboard" : "Copy JSX"}</button>
       </footer>
     </div>
   );

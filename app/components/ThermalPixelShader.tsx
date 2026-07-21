@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 
 export type PaletteName = "wild" | "ember" | "mono";
 
@@ -14,9 +14,9 @@ export type ThermalPixelSettings = {
   palette: PaletteName;
 };
 
-type Props = {
-  settings: ThermalPixelSettings;
-  resetKey: number;
+type Props = Partial<ThermalPixelSettings> & {
+  settings?: ThermalPixelSettings;
+  resetKey?: number;
   className?: string;
 };
 
@@ -160,7 +160,30 @@ function uniform(gl: WebGL2RenderingContext, program: WebGLProgram, name: string
   return location;
 }
 
-export function ThermalPixelShader({ settings, resetKey, className }: Props) {
+export function ThermalPixelShader({
+  settings: suppliedSettings,
+  cellSize = 10,
+  brushRadius = 82,
+  heat = 1.05,
+  decay = 0.925,
+  noise = 0.46,
+  speed = 0.68,
+  palette = "wild",
+  resetKey = 0,
+  className,
+}: Props) {
+  const settings = useMemo(
+    () => suppliedSettings ?? {
+      cellSize,
+      brushRadius,
+      heat,
+      decay,
+      noise,
+      speed,
+      palette,
+    },
+    [suppliedSettings, cellSize, brushRadius, heat, decay, noise, speed, palette],
+  );
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const settingsRef = useRef(settings);
 
