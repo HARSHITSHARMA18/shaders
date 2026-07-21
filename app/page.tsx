@@ -1,5 +1,5 @@
-import { ShaderLab } from "./components/ShaderLab";
+import { ShaderCatalog } from "./components/ShaderCatalog";
 
 export default function Home() {
-  return <ShaderLab />;
+  return <ShaderCatalog />;
 }

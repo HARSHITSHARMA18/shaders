@@ -8,9 +8,13 @@ export type ThermalPixelSettings = {
   cellSize: number;
   brushRadius: number;
   heat: number;
+  pressBoost: number;
   decay: number;
   noise: number;
   speed: number;
+  ambient: number;
+  gap: number;
+  bandShift: number;
   palette: PaletteName;
 };
 
@@ -42,6 +46,7 @@ uniform float u_heat;
 uniform float u_decay;
 uniform float u_delta;
 uniform float u_pressed;
+uniform float u_pressure;
 
 float hash(vec2 p) {
   p = fract(p * vec2(123.34, 456.21));
@@ -62,7 +67,7 @@ void main() {
   float d = segmentDistance(cell, u_previousMouse, u_mouse);
   float brush = exp(-d * d / max(u_radius * u_radius, 0.001));
   float grain = mix(0.72, 1.28, hash(floor(cell)));
-  float pressure = mix(1.0, 1.55, u_pressed);
+  float pressure = mix(1.0, u_pressure, u_pressed);
   float deposit = brush * grain * u_heat * pressure * 0.085 * u_delta * 60.0 * u_active;
   float value = clamp(retained + deposit, 0.0, 1.0);
   outColor = vec4(value, value, value, 1.0);
@@ -77,6 +82,9 @@ uniform vec2 u_simulationResolution;
 uniform float u_time;
 uniform float u_noise;
 uniform float u_speed;
+uniform float u_ambient;
+uniform float u_gap;
+uniform float u_bandShift;
 uniform vec3 u_background;
 uniform vec3 u_color1;
 uniform vec3 u_color2;
@@ -100,8 +108,8 @@ void main() {
     + sin(cell.y * 0.087 - t * 0.72) * 0.22
     + sin((cell.x + cell.y) * 0.052 + t * 0.38) * 0.18;
   float grain = (hash(cell) - 0.5) * u_noise * 0.38;
-  float ambient = smoothstep(0.28, 0.62, waves + grain + 0.24) * 0.42;
-  float value = state + ambient;
+  float ambient = smoothstep(0.28, 0.62, waves + grain + 0.24) * u_ambient;
+  float value = state + ambient + u_bandShift;
   vec3 color = u_background;
   if (value > 0.20) color = u_color1;
   if (value > 0.36) color = u_color2;
@@ -109,8 +117,7 @@ void main() {
   if (value > 0.76) color = u_color4;
   if (value > 0.94) color = u_color5;
   vec2 local = fract(gridPosition);
-  float gap = 0.085;
-  float tile = step(gap, local.x) * step(gap, local.y);
+  float tile = step(u_gap, local.x) * step(u_gap, local.y);
   outColor = vec4(mix(u_background, color, tile), 1.0);
 }`;
 
@@ -165,9 +172,13 @@ export function ThermalPixelShader({
   cellSize = 10,
   brushRadius = 82,
   heat = 1.05,
+  pressBoost = 1.55,
   decay = 0.925,
   noise = 0.46,
   speed = 0.68,
+  ambient = 0.42,
+  gap = 0.085,
+  bandShift = 0,
   palette = "wild",
   resetKey = 0,
   className,
@@ -177,12 +188,16 @@ export function ThermalPixelShader({
       cellSize,
       brushRadius,
       heat,
+      pressBoost,
       decay,
       noise,
       speed,
+      ambient,
+      gap,
+      bandShift,
       palette,
     },
-    [suppliedSettings, cellSize, brushRadius, heat, decay, noise, speed, palette],
+    [suppliedSettings, cellSize, brushRadius, heat, pressBoost, decay, noise, speed, ambient, gap, bandShift, palette],
   );
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const settingsRef = useRef(settings);
@@ -233,6 +248,7 @@ export function ThermalPixelShader({
       decay: uniform(gl, updateProgram, "u_decay"),
       delta: uniform(gl, updateProgram, "u_delta"),
       pressed: uniform(gl, updateProgram, "u_pressed"),
+      pressure: uniform(gl, updateProgram, "u_pressure"),
     };
     const displayUniforms = {
       state: uniform(gl, displayProgram, "u_state"),
@@ -240,6 +256,9 @@ export function ThermalPixelShader({
       time: uniform(gl, displayProgram, "u_time"),
       noise: uniform(gl, displayProgram, "u_noise"),
       speed: uniform(gl, displayProgram, "u_speed"),
+      ambient: uniform(gl, displayProgram, "u_ambient"),
+      gap: uniform(gl, displayProgram, "u_gap"),
+      bandShift: uniform(gl, displayProgram, "u_bandShift"),
       background: uniform(gl, displayProgram, "u_background"),
       color1: uniform(gl, displayProgram, "u_color1"),
       color2: uniform(gl, displayProgram, "u_color2"),
@@ -363,6 +382,7 @@ export function ThermalPixelShader({
       gl.uniform1f(updateUniforms.decay, current.decay);
       gl.uniform1f(updateUniforms.delta, delta);
       gl.uniform1f(updateUniforms.pressed, pointer.pressed ? 1 : 0);
+      gl.uniform1f(updateUniforms.pressure, current.pressBoost);
       gl.drawArrays(gl.TRIANGLES, 0, 3);
       readIndex = writeIndex;
       pointer.previousX = pointer.x;
@@ -378,6 +398,9 @@ export function ThermalPixelShader({
       gl.uniform1f(displayUniforms.time, time / 1000);
       gl.uniform1f(displayUniforms.noise, current.noise);
       gl.uniform1f(displayUniforms.speed, current.speed);
+      gl.uniform1f(displayUniforms.ambient, current.ambient);
+      gl.uniform1f(displayUniforms.gap, current.gap);
+      gl.uniform1f(displayUniforms.bandShift, current.bandShift);
       const colors = PALETTES[current.palette].map(hexToRgb);
       gl.uniform3fv(displayUniforms.background, colors[0]);
       gl.uniform3fv(displayUniforms.color1, colors[1]);

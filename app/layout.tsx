@@ -7,9 +7,9 @@ export async function generateMetadata(): Promise<Metadata> {
   const host = requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
   const protocol = requestHeaders.get("x-forwarded-proto") ?? "https";
   const origin = host ? `${protocol}://${host}` : "http://localhost:3000";
-  const title = "Solace Shaders - Thermal Pixel Ink";
-  const description = "A live shader catalog and tuning lab for Solace UI experiments.";
-  const image = new URL("/og.png", origin).toString();
+  const title = "Solace Shaders - Interactive Material Catalog";
+  const description = "Explore, tune, and copy interactive shader systems for Solace UI.";
+  const image = new URL("/og-catalog.png", origin).toString();
 
   return {
     metadataBase: new URL(origin),

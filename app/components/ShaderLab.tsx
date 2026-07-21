@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { CSSProperties, useMemo, useState } from "react";
+import Link from "next/link";
 import {
   PaletteName,
   ThermalPixelSettings,
@@ -11,10 +12,21 @@ const DEFAULT_SETTINGS: ThermalPixelSettings = {
   cellSize: 10,
   brushRadius: 82,
   heat: 1.05,
+  pressBoost: 1.55,
   decay: 0.925,
   noise: 0.46,
   speed: 0.68,
+  ambient: 0.42,
+  gap: 0.085,
+  bandShift: 0,
   palette: "wild",
+};
+
+const PRESETS: Record<string, ThermalPixelSettings> = {
+  Default: DEFAULT_SETTINGS,
+  Sharp: { ...DEFAULT_SETTINGS, cellSize: 8, brushRadius: 58, heat: 1.35, decay: 0.89, gap: 0.12 },
+  Soft: { ...DEFAULT_SETTINGS, cellSize: 13, brushRadius: 118, heat: 0.72, decay: 0.965, noise: 0.2, ambient: 0.3 },
+  Ember: { ...DEFAULT_SETTINGS, brushRadius: 96, heat: 1.28, decay: 0.95, noise: 0.62, palette: "ember" },
 };
 
 type NumberSetting = Exclude<keyof ThermalPixelSettings, "palette">;
@@ -32,13 +44,13 @@ type RangeControlProps = {
 
 function RangeControl(props: RangeControlProps) {
   const { label, setting, value, min, max, step, display, onChange } = props;
+  const fill = `${((value - min) / (max - min)) * 100}%`;
   return (
-    <label className="rangeControl">
-      <span className="controlHeader">
-        <span>{label}</span>
-        <output>{display}</output>
-      </span>
+    <label className="dialRow dialRange" style={{ "--fill": fill } as CSSProperties}>
+      <span>{label}</span>
+      <output>{display}</output>
       <input
+        aria-label={label}
         type="range"
         min={min}
         max={max}
@@ -67,9 +79,16 @@ async function writeClipboard(text: string) {
 
 export function ShaderLab() {
   const [settings, setSettings] = useState(DEFAULT_SETTINGS);
+  const [preset, setPreset] = useState("Default");
+  const [motion, setMotion] = useState(true);
   const [resetKey, setResetKey] = useState(0);
   const [codeOpen, setCodeOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+
+  const liveSettings = useMemo(
+    () => ({ ...settings, speed: motion ? settings.speed : 0 }),
+    [settings, motion],
+  );
 
   const snippet = useMemo(
     () => `import { ThermalPixelShader } from "@/components/ThermalPixelShader";
@@ -78,22 +97,32 @@ export function ShaderLab() {
   cellSize={${settings.cellSize}}
   brushRadius={${settings.brushRadius}}
   heat={${settings.heat.toFixed(2)}}
+  pressBoost={${settings.pressBoost.toFixed(2)}}
   decay={${settings.decay.toFixed(3)}}
   noise={${settings.noise.toFixed(2)}}
   speed={${settings.speed.toFixed(2)}}
+  ambient={${settings.ambient.toFixed(2)}}
+  gap={${settings.gap.toFixed(3)}}
+  bandShift={${settings.bandShift.toFixed(2)}}
   palette="${settings.palette}"
 />`,
     [settings],
   );
 
   const setNumber = (setting: NumberSetting, value: number) => {
+    setPreset("Custom");
     setSettings((current) => ({ ...current, [setting]: value }));
   };
 
-  const reset = () => {
-    setSettings(DEFAULT_SETTINGS);
-    setResetKey((current) => current + 1);
+  const choosePreset = (name: string) => {
+    setPreset(name);
+    if (PRESETS[name]) {
+      setSettings(PRESETS[name]);
+      setResetKey((current) => current + 1);
+    }
   };
+
+  const reset = () => choosePreset("Default");
 
   const copyCode = async () => {
     await writeClipboard(snippet);
@@ -102,47 +131,25 @@ export function ShaderLab() {
   };
 
   return (
-    <div className="labShell">
+    <div className="labShell detailShell">
       <header className="topbar">
-        <a className="wordmark" href="#top" aria-label="Solace Shaders home">
+        <Link className="wordmark" href="/" aria-label="Back to Solace Shaders catalog">
           <span className="brandMark" aria-hidden="true" />
           <span>Solace</span>
           <span className="brandDivider">/</span>
           <span className="brandSection">Shaders</span>
-        </a>
+        </Link>
         <div className="topMeta">
-          <span>Catalog 001</span>
+          <Link href="/">Catalog</Link>
           <span className="liveStatus"><i /> WebGL live</span>
         </div>
       </header>
 
-      <aside className="catalog" aria-label="Shader catalog">
-        <div className="catalogLabel">Experiments</div>
-        <nav>
-          <a className="catalogItem active" href="#thermal-pixel">
-            <span>01</span>
-            <strong>Thermal pixel ink</strong>
-          </a>
-          <div className="catalogItem unavailable" aria-disabled="true">
-            <span>02</span>
-            <strong>Viscous cursor dye</strong>
-          </div>
-          <div className="catalogItem unavailable" aria-disabled="true">
-            <span>03</span>
-            <strong>Reaction bloom</strong>
-          </div>
-          <div className="catalogItem unavailable" aria-disabled="true">
-            <span>04</span>
-            <strong>Magnetic pixels</strong>
-          </div>
-        </nav>
-        <p className="catalogNote">A growing collection of interactive materials for Solace UI.</p>
-      </aside>
-
-      <main className="workspace" id="top">
+      <main className="workspace detailWorkspace" id="top">
         <section className="experiment" id="thermal-pixel">
           <div className="experimentHeading">
             <div>
+              <Link className="backLink" href="/">← All shaders</Link>
               <div className="eyebrow">Experiment 001 / Interactive field</div>
               <h1>Thermal pixel ink</h1>
             </div>
@@ -155,7 +162,7 @@ export function ShaderLab() {
           <div className="stage">
             <ThermalPixelShader
               className="shaderCanvas"
-              settings={settings}
+              settings={liveSettings}
               resetKey={resetKey}
             />
             <div className="stageTop" aria-hidden="true">
@@ -185,59 +192,82 @@ export function ShaderLab() {
         ) : null}
       </main>
 
-      <aside className="inspector" aria-label="Shader controls">
-        <div className="inspectorHeader">
-          <div>
-            <span className="eyebrow">Dialkit</span>
-            <h2>Field settings</h2>
+      <aside className="inspector" aria-label="Thermal pixel fine-tuning controls">
+        <div className="dialPanel">
+          <div className="dialHeader">
+            <div>
+              <span className="dialKicker">Shader controls</span>
+              <h2>Thermal Pixel</h2>
+            </div>
+            <button className="dialIconButton" type="button" onClick={reset} aria-label="Reset all controls">↺</button>
           </div>
-          <button className="iconButton" type="button" onClick={reset} aria-label="Reset settings">
-            Reset
-          </button>
-        </div>
 
-        <div className="controls">
-          <RangeControl label="Cell size" setting="cellSize" value={settings.cellSize} min={6} max={18} step={1} display={`${settings.cellSize}px`} onChange={setNumber} />
-          <RangeControl label="Brush radius" setting="brushRadius" value={settings.brushRadius} min={36} max={150} step={2} display={`${settings.brushRadius}px`} onChange={setNumber} />
-          <RangeControl label="Heat" setting="heat" value={settings.heat} min={0.3} max={1.8} step={0.05} display={settings.heat.toFixed(2)} onChange={setNumber} />
-          <RangeControl label="Decay" setting="decay" value={settings.decay} min={0.82} max={0.985} step={0.005} display={settings.decay.toFixed(3)} onChange={setNumber} />
-          <RangeControl label="Noise" setting="noise" value={settings.noise} min={0} max={1} step={0.02} display={settings.noise.toFixed(2)} onChange={setNumber} />
-          <RangeControl label="Field speed" setting="speed" value={settings.speed} min={0} max={1.5} step={0.05} display={`${settings.speed.toFixed(2)}x`} onChange={setNumber} />
-
-          <label className="selectControl">
-            <span className="controlHeader"><span>Palette</span><output>{settings.palette}</output></span>
-            <select
-              value={settings.palette}
-              onChange={(event) => setSettings((current) => ({ ...current, palette: event.target.value as PaletteName }))}
-            >
-              <option value="wild">Wild signal</option>
-              <option value="ember">Ember</option>
-              <option value="mono">Monochrome</option>
+          <div className="dialToolbar">
+            <select value={preset} onChange={(event) => choosePreset(event.target.value)} aria-label="Preset">
+              {Object.keys(PRESETS).map((name) => <option value={name} key={name}>{name}</option>)}
+              {preset === "Custom" ? <option value="Custom">Custom</option> : null}
             </select>
-          </label>
-
-          <div className={`paletteStrip ${settings.palette}`} aria-label={`${settings.palette} palette preview`}>
-            <i /><i /><i /><i /><i /><i />
+            <button type="button" onClick={copyCode}>{copied ? "Copied" : "Copy"}</button>
           </div>
-        </div>
 
-        <div className="inspectorActions">
-          <button className="secondaryButton" type="button" onClick={() => setCodeOpen((current) => !current)}>
-            {codeOpen ? "Hide code" : "View code"}
-          </button>
-          <button className="primaryButton" type="button" onClick={copyCode}>
-            {copied ? "Copied" : "Copy JSX"}
-          </button>
+          <div className="dialControls">
+            <details open>
+              <summary>Geometry</summary>
+              <RangeControl label="Cell Size" setting="cellSize" value={settings.cellSize} min={6} max={18} step={1} display={`${settings.cellSize}px`} onChange={setNumber} />
+              <RangeControl label="Grid Gap" setting="gap" value={settings.gap} min={0} max={0.24} step={0.005} display={settings.gap.toFixed(3)} onChange={setNumber} />
+            </details>
+
+            <details open>
+              <summary>Brush</summary>
+              <RangeControl label="Radius" setting="brushRadius" value={settings.brushRadius} min={36} max={150} step={2} display={`${settings.brushRadius}px`} onChange={setNumber} />
+              <RangeControl label="Heat" setting="heat" value={settings.heat} min={0.3} max={1.8} step={0.05} display={settings.heat.toFixed(2)} onChange={setNumber} />
+              <RangeControl label="Press Boost" setting="pressBoost" value={settings.pressBoost} min={1} max={2.5} step={0.05} display={`${settings.pressBoost.toFixed(2)}x`} onChange={setNumber} />
+            </details>
+
+            <details open>
+              <summary>Field</summary>
+              <RangeControl label="Decay" setting="decay" value={settings.decay} min={0.82} max={0.985} step={0.005} display={settings.decay.toFixed(3)} onChange={setNumber} />
+              <RangeControl label="Ambient" setting="ambient" value={settings.ambient} min={0} max={0.8} step={0.02} display={settings.ambient.toFixed(2)} onChange={setNumber} />
+              <RangeControl label="Noise" setting="noise" value={settings.noise} min={0} max={1} step={0.02} display={settings.noise.toFixed(2)} onChange={setNumber} />
+              <RangeControl label="Speed" setting="speed" value={settings.speed} min={0} max={1.5} step={0.05} display={`${settings.speed.toFixed(2)}x`} onChange={setNumber} />
+              <div className="dialRow dialSegmented">
+                <span>Motion</span>
+                <div role="group" aria-label="Field motion">
+                  <button type="button" aria-pressed={!motion} onClick={() => setMotion(false)}>Off</button>
+                  <button type="button" aria-pressed={motion} onClick={() => setMotion(true)}>On</button>
+                </div>
+              </div>
+            </details>
+
+            <details open>
+              <summary>Color</summary>
+              <label className="dialRow dialSelect">
+                <span>Palette</span>
+                <select
+                  value={settings.palette}
+                  onChange={(event) => {
+                    setPreset("Custom");
+                    setSettings((current) => ({ ...current, palette: event.target.value as PaletteName }));
+                  }}
+                >
+                  <option value="wild">Wild signal</option>
+                  <option value="ember">Ember</option>
+                  <option value="mono">Monochrome</option>
+                </select>
+              </label>
+              <RangeControl label="Band Shift" setting="bandShift" value={settings.bandShift} min={-0.15} max={0.15} step={0.01} display={settings.bandShift.toFixed(2)} onChange={setNumber} />
+              <div className={`paletteStrip ${settings.palette}`} aria-label={`${settings.palette} palette preview`}>
+                <i /><i /><i /><i /><i /><i />
+              </div>
+            </details>
+          </div>
+
+          <div className="dialActions">
+            <button type="button" onClick={() => setCodeOpen((current) => !current)}>{codeOpen ? "Hide code" : "View code"}</button>
+            <button className="dialPrimary" type="button" onClick={copyCode}>{copied ? "Copied" : "Copy JSX"}</button>
+          </div>
         </div>
       </aside>
-
-      <footer className="codebar">
-        <div>
-          <span className="codePrompt">import</span>
-          <code>ThermalPixelShader from your Solace block</code>
-        </div>
-        <button type="button" onClick={copyCode}>{copied ? "Copied to clipboard" : "Copy JSX"}</button>
-      </footer>
     </div>
   );
 }
