@@ -1,0 +1,19 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry.json",
+  "name": "solace-shaders",
+  "homepage": "https://solace-shaders-lab.swetasharma02.chatgpt.site",
+  "items": [
+    {
+      "name": "thermal-pixel-ink",
+      "type": "registry:component",
+      "title": "Thermal Pixel Ink",
+      "description": "An interactive WebGL heat field with a persistent trail, quantized color bands, and pointer-pressure response.",
+      "files": [
+        {
+          "path": "registry/default/thermal-pixel-ink/thermal-pixel-shader.tsx",
+          "type": "registry:component"
+        }
+      ]
+    }
+  ]
+}

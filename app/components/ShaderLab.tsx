@@ -1,72 +1,53 @@
 "use client";
 
-import { CSSProperties, useMemo, useState } from "react";
+import { useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
+import { DialRoot, useDialKitController, type DialConfig } from "dialkit";
 import {
   PaletteName,
   ThermalPixelSettings,
   ThermalPixelShader,
 } from "./ThermalPixelShader";
 
-const DEFAULT_SETTINGS: ThermalPixelSettings = {
-  cellSize: 10,
-  brushRadius: 82,
-  heat: 1.05,
-  pressBoost: 1.55,
-  decay: 0.925,
-  noise: 0.46,
-  speed: 0.68,
-  ambient: 0.42,
-  gap: 0.085,
-  bandShift: 0,
-  palette: "wild",
-};
+const DEPLOYED_ORIGIN = "https://solace-shaders-lab.swetasharma02.chatgpt.site";
 
-const PRESETS: Record<string, ThermalPixelSettings> = {
-  Default: DEFAULT_SETTINGS,
-  Sharp: { ...DEFAULT_SETTINGS, cellSize: 8, brushRadius: 58, heat: 1.35, decay: 0.89, gap: 0.12 },
-  Soft: { ...DEFAULT_SETTINGS, cellSize: 13, brushRadius: 118, heat: 0.72, decay: 0.965, noise: 0.2, ambient: 0.3 },
-  Ember: { ...DEFAULT_SETTINGS, brushRadius: 96, heat: 1.28, decay: 0.95, noise: 0.62, palette: "ember" },
-};
-
-type NumberSetting = Exclude<keyof ThermalPixelSettings, "palette">;
-
-type RangeControlProps = {
-  label: string;
-  setting: NumberSetting;
-  value: number;
-  min: number;
-  max: number;
-  step: number;
-  display: string;
-  onChange: (setting: NumberSetting, value: number) => void;
-};
-
-function RangeControl(props: RangeControlProps) {
-  const { label, setting, value, min, max, step, display, onChange } = props;
-  const fill = `${((value - min) / (max - min)) * 100}%`;
-  return (
-    <label className="dialRow dialRange" style={{ "--fill": fill } as CSSProperties}>
-      <span>{label}</span>
-      <output>{display}</output>
-      <input
-        aria-label={label}
-        type="range"
-        min={min}
-        max={max}
-        step={step}
-        value={value}
-        onChange={(event) => onChange(setting, Number(event.target.value))}
-      />
-    </label>
-  );
-}
+const DIAL_CONFIG = {
+  geometry: {
+    cellSize: [10, 6, 18, 1] as [number, number, number, number],
+    gridGap: [0.085, 0, 0.24, 0.005] as [number, number, number, number],
+  },
+  brush: {
+    radius: [82, 36, 150, 2] as [number, number, number, number],
+    heat: [1.05, 0.3, 1.8, 0.05] as [number, number, number, number],
+    pressBoost: [1.55, 1, 2.5, 0.05] as [number, number, number, number],
+  },
+  field: {
+    decay: [0.925, 0.82, 0.985, 0.005] as [number, number, number, number],
+    ambient: [0.42, 0, 0.8, 0.02] as [number, number, number, number],
+    noise: [0.46, 0, 1, 0.02] as [number, number, number, number],
+    speed: [0.68, 0, 1.5, 0.05] as [number, number, number, number],
+    motion: true,
+  },
+  color: {
+    palette: {
+      type: "select",
+      options: [
+        { value: "wild", label: "Wild signal" },
+        { value: "ember", label: "Ember" },
+        { value: "mono", label: "Monochrome" },
+      ],
+      default: "wild",
+    },
+    bandShift: [0, -0.15, 0.15, 0.01] as [number, number, number, number],
+  },
+} satisfies DialConfig;
 
 async function writeClipboard(text: string) {
   if (navigator.clipboard?.writeText) {
     await navigator.clipboard.writeText(text);
     return;
   }
+
   const field = document.createElement("textarea");
   field.value = text;
   field.style.position = "fixed";
@@ -78,56 +59,59 @@ async function writeClipboard(text: string) {
 }
 
 export function ShaderLab() {
-  const [settings, setSettings] = useState(DEFAULT_SETTINGS);
-  const [preset, setPreset] = useState("Default");
-  const [motion, setMotion] = useState(true);
-  const [resetKey, setResetKey] = useState(0);
+  const dial = useDialKitController("Thermal Pixel Ink", DIAL_CONFIG, {
+    id: "solace-thermal-pixel-ink",
+    persist: true,
+  });
+  const origin = useSyncExternalStore(
+    () => () => undefined,
+    () => window.location.origin,
+    () => DEPLOYED_ORIGIN,
+  );
   const [codeOpen, setCodeOpen] = useState(false);
-  const [copied, setCopied] = useState(false);
+  const [copied, setCopied] = useState<"install" | "jsx" | null>(null);
 
-  const liveSettings = useMemo(
-    () => ({ ...settings, speed: motion ? settings.speed : 0 }),
-    [settings, motion],
+  const settings = useMemo<ThermalPixelSettings>(
+    () => ({
+      cellSize: dial.values.geometry.cellSize,
+      brushRadius: dial.values.brush.radius,
+      heat: dial.values.brush.heat,
+      pressBoost: dial.values.brush.pressBoost,
+      decay: dial.values.field.decay,
+      noise: dial.values.field.noise,
+      speed: dial.values.field.motion ? dial.values.field.speed : 0,
+      ambient: dial.values.field.ambient,
+      gap: dial.values.geometry.gridGap,
+      bandShift: dial.values.color.bandShift,
+      palette: dial.values.color.palette as PaletteName,
+    }),
+    [dial.values],
   );
 
-  const snippet = useMemo(
-    () => `import { ThermalPixelShader } from "@/components/ThermalPixelShader";
+  const registryCommand = `npx shadcn@latest add ${origin}/r/thermal-pixel-ink.json`;
+  const snippet = `import { ThermalPixelShader } from "@/components/thermal-pixel-shader";
 
-<ThermalPixelShader
-  cellSize={${settings.cellSize}}
-  brushRadius={${settings.brushRadius}}
-  heat={${settings.heat.toFixed(2)}}
-  pressBoost={${settings.pressBoost.toFixed(2)}}
-  decay={${settings.decay.toFixed(3)}}
-  noise={${settings.noise.toFixed(2)}}
-  speed={${settings.speed.toFixed(2)}}
-  ambient={${settings.ambient.toFixed(2)}}
-  gap={${settings.gap.toFixed(3)}}
-  bandShift={${settings.bandShift.toFixed(2)}}
-  palette="${settings.palette}"
-/>`,
-    [settings],
-  );
+<div className="relative h-[560px] overflow-hidden rounded-2xl">
+  <ThermalPixelShader
+    cellSize={${settings.cellSize}}
+    brushRadius={${settings.brushRadius}}
+    heat={${settings.heat.toFixed(2)}}
+    pressBoost={${settings.pressBoost.toFixed(2)}}
+    decay={${settings.decay.toFixed(3)}}
+    noise={${settings.noise.toFixed(2)}}
+    speed={${settings.speed.toFixed(2)}}
+    ambient={${settings.ambient.toFixed(2)}}
+    gap={${settings.gap.toFixed(3)}}
+    bandShift={${settings.bandShift.toFixed(2)}}
+    palette="${settings.palette}"
+    className="h-full w-full"
+  />
+</div>`;
 
-  const setNumber = (setting: NumberSetting, value: number) => {
-    setPreset("Custom");
-    setSettings((current) => ({ ...current, [setting]: value }));
-  };
-
-  const choosePreset = (name: string) => {
-    setPreset(name);
-    if (PRESETS[name]) {
-      setSettings(PRESETS[name]);
-      setResetKey((current) => current + 1);
-    }
-  };
-
-  const reset = () => choosePreset("Default");
-
-  const copyCode = async () => {
-    await writeClipboard(snippet);
-    setCopied(true);
-    window.setTimeout(() => setCopied(false), 1600);
+  const copy = async (kind: "install" | "jsx", value: string) => {
+    await writeClipboard(value);
+    setCopied(kind);
+    window.setTimeout(() => setCopied(null), 1600);
   };
 
   return (
@@ -160,11 +144,7 @@ export function ShaderLab() {
           </div>
 
           <div className="stage">
-            <ThermalPixelShader
-              className="shaderCanvas"
-              settings={liveSettings}
-              resetKey={resetKey}
-            />
+            <ThermalPixelShader className="shaderCanvas" settings={settings} />
             <div className="stageTop" aria-hidden="true">
               <span>Pointer field</span>
               <span>{Math.round(100 / settings.cellSize)} px density</span>
@@ -176,15 +156,35 @@ export function ShaderLab() {
           </div>
         </section>
 
+        <section className="installPanel" aria-labelledby="install-title">
+          <div className="installIntro">
+            <span className="eyebrow">Solace registry</span>
+            <h2 id="install-title">Add it to your project</h2>
+            <p>
+              Installs the shader source into your components directory. No runtime
+              package or Solace dependency is added.
+            </p>
+          </div>
+          <div className="installCommand">
+            <code>{registryCommand}</code>
+            <button type="button" onClick={() => copy("install", registryCommand)}>
+              {copied === "install" ? "Copied" : "Copy command"}
+            </button>
+          </div>
+          <button className="usageToggle" type="button" onClick={() => setCodeOpen((open) => !open)}>
+            {codeOpen ? "Hide configured JSX" : "View configured JSX"}
+          </button>
+        </section>
+
         {codeOpen ? (
-          <section className="codePanel" aria-label="Component snippet">
+          <section className="codePanel" aria-label="Configured component snippet">
             <div className="codePanelHeader">
               <div>
-                <span className="eyebrow">Solace UI block</span>
-                <h2>Current configuration</h2>
+                <span className="eyebrow">Current DialKit values</span>
+                <h2>Ready-to-paste usage</h2>
               </div>
-              <button className="quietButton" type="button" onClick={() => setCodeOpen(false)}>
-                Close
+              <button className="quietButton" type="button" onClick={() => copy("jsx", snippet)}>
+                {copied === "jsx" ? "Copied" : "Copy JSX"}
               </button>
             </div>
             <pre><code>{snippet}</code></pre>
@@ -193,80 +193,13 @@ export function ShaderLab() {
       </main>
 
       <aside className="inspector" aria-label="Thermal pixel fine-tuning controls">
-        <div className="dialPanel">
-          <div className="dialHeader">
-            <div>
-              <span className="dialKicker">Shader controls</span>
-              <h2>Thermal Pixel</h2>
-            </div>
-            <button className="dialIconButton" type="button" onClick={reset} aria-label="Reset all controls">↺</button>
-          </div>
-
-          <div className="dialToolbar">
-            <select value={preset} onChange={(event) => choosePreset(event.target.value)} aria-label="Preset">
-              {Object.keys(PRESETS).map((name) => <option value={name} key={name}>{name}</option>)}
-              {preset === "Custom" ? <option value="Custom">Custom</option> : null}
-            </select>
-            <button type="button" onClick={copyCode}>{copied ? "Copied" : "Copy"}</button>
-          </div>
-
-          <div className="dialControls">
-            <details open>
-              <summary>Geometry</summary>
-              <RangeControl label="Cell Size" setting="cellSize" value={settings.cellSize} min={6} max={18} step={1} display={`${settings.cellSize}px`} onChange={setNumber} />
-              <RangeControl label="Grid Gap" setting="gap" value={settings.gap} min={0} max={0.24} step={0.005} display={settings.gap.toFixed(3)} onChange={setNumber} />
-            </details>
-
-            <details open>
-              <summary>Brush</summary>
-              <RangeControl label="Radius" setting="brushRadius" value={settings.brushRadius} min={36} max={150} step={2} display={`${settings.brushRadius}px`} onChange={setNumber} />
-              <RangeControl label="Heat" setting="heat" value={settings.heat} min={0.3} max={1.8} step={0.05} display={settings.heat.toFixed(2)} onChange={setNumber} />
-              <RangeControl label="Press Boost" setting="pressBoost" value={settings.pressBoost} min={1} max={2.5} step={0.05} display={`${settings.pressBoost.toFixed(2)}x`} onChange={setNumber} />
-            </details>
-
-            <details open>
-              <summary>Field</summary>
-              <RangeControl label="Decay" setting="decay" value={settings.decay} min={0.82} max={0.985} step={0.005} display={settings.decay.toFixed(3)} onChange={setNumber} />
-              <RangeControl label="Ambient" setting="ambient" value={settings.ambient} min={0} max={0.8} step={0.02} display={settings.ambient.toFixed(2)} onChange={setNumber} />
-              <RangeControl label="Noise" setting="noise" value={settings.noise} min={0} max={1} step={0.02} display={settings.noise.toFixed(2)} onChange={setNumber} />
-              <RangeControl label="Speed" setting="speed" value={settings.speed} min={0} max={1.5} step={0.05} display={`${settings.speed.toFixed(2)}x`} onChange={setNumber} />
-              <div className="dialRow dialSegmented">
-                <span>Motion</span>
-                <div role="group" aria-label="Field motion">
-                  <button type="button" aria-pressed={!motion} onClick={() => setMotion(false)}>Off</button>
-                  <button type="button" aria-pressed={motion} onClick={() => setMotion(true)}>On</button>
-                </div>
-              </div>
-            </details>
-
-            <details open>
-              <summary>Color</summary>
-              <label className="dialRow dialSelect">
-                <span>Palette</span>
-                <select
-                  value={settings.palette}
-                  onChange={(event) => {
-                    setPreset("Custom");
-                    setSettings((current) => ({ ...current, palette: event.target.value as PaletteName }));
-                  }}
-                >
-                  <option value="wild">Wild signal</option>
-                  <option value="ember">Ember</option>
-                  <option value="mono">Monochrome</option>
-                </select>
-              </label>
-              <RangeControl label="Band Shift" setting="bandShift" value={settings.bandShift} min={-0.15} max={0.15} step={0.01} display={settings.bandShift.toFixed(2)} onChange={setNumber} />
-              <div className={`paletteStrip ${settings.palette}`} aria-label={`${settings.palette} palette preview`}>
-                <i /><i /><i /><i /><i /><i />
-              </div>
-            </details>
-          </div>
-
-          <div className="dialActions">
-            <button type="button" onClick={() => setCodeOpen((current) => !current)}>{codeOpen ? "Hide code" : "View code"}</button>
-            <button className="dialPrimary" type="button" onClick={copyCode}>{copied ? "Copied" : "Copy JSX"}</button>
-          </div>
+        <div className="dialkitFrame">
+          <DialRoot mode="inline" theme="dark" productionEnabled />
         </div>
+        <p className="dialkitCredit">
+          Controls powered by <a href="https://joshpuckett.me/dialkit" target="_blank" rel="noreferrer">DialKit</a>.
+          Values and presets persist in this browser.
+        </p>
       </aside>
     </div>
   );

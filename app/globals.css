@@ -488,14 +488,110 @@ summary:focus-visible {
 }
 .dialActions .dialPrimary { color: var(--accent-ink); background: var(--accent); font-weight: 500; }
 
+/* Actual DialKit host and registry installer */
+
+.dialkitFrame {
+  height: calc(100vh - 118px);
+  min-height: 520px;
+  overflow: hidden;
+  border: 1px solid #353835;
+  border-radius: 13px;
+  background: #1a1c1a;
+  box-shadow: 0 18px 48px rgba(0, 0, 0, 0.42);
+}
+
+.dialkitFrame > .dialkit-root {
+  width: 100%;
+  height: 100%;
+}
+
+.dialkitCredit {
+  margin: 10px 4px 0;
+  color: #646b65;
+  font: 8px/1.45 "SFMono-Regular", Consolas, monospace;
+}
+
+.dialkitCredit a { color: #9aa29a; }
+
+.installPanel {
+  margin-top: 16px;
+  padding: 18px;
+  display: grid;
+  grid-template-columns: minmax(190px, 0.7fr) minmax(340px, 1.3fr) auto;
+  gap: 16px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--panel);
+}
+
+.installIntro h2 {
+  margin: 5px 0 0;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: -0.03em;
+}
+
+.installIntro p {
+  margin: 8px 0 0;
+  max-width: 390px;
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.5;
+}
+
+.installCommand {
+  min-width: 0;
+  height: 42px;
+  padding: 0 5px 0 13px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border: 1px solid #303530;
+  border-radius: 7px;
+  background: #090b0a;
+}
+
+.installCommand code {
+  min-width: 0;
+  flex: 1;
+  overflow: hidden;
+  color: #cfd5ce;
+  font: 9px/1 "SFMono-Regular", Consolas, monospace;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.installCommand button,
+.usageToggle {
+  flex: 0 0 auto;
+  height: 32px;
+  padding: 0 11px;
+  border: 0;
+  border-radius: 5px;
+  font-size: 9px;
+}
+
+.installCommand button {
+  color: var(--accent-ink);
+  background: var(--accent);
+  font-weight: 500;
+}
+
+.usageToggle {
+  color: #b7bcb7;
+  background: #282b28;
+}
+
 @media (max-width: 1080px) {
   .shaderGrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .featuredCard { grid-column: span 2; }
   .labShell { grid-template-columns: 1fr; grid-template-rows: 58px auto auto; grid-template-areas: "topbar" "workspace" "inspector"; }
   .inspector { border-left: 0; border-top: 1px solid var(--border); }
-  .dialPanel { height: auto; min-height: 0; max-width: 720px; margin: 0 auto; }
-  .dialControls { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0 8px; overflow: visible; }
-  .dialControls details { break-inside: avoid; }
+  .dialkitFrame { height: 640px; min-height: 0; max-width: 720px; margin: 0 auto; }
+  .dialkitCredit { max-width: 720px; margin: 10px auto 0; }
+  .installPanel { grid-template-columns: 1fr; }
+  .usageToggle { justify-self: start; }
 }
 
 @media (max-width: 720px) {
@@ -513,7 +609,11 @@ summary:focus-visible {
   .stage { height: min(62vh, 560px); min-height: 400px; }
   .stageHint { display: none; }
   .inspector { padding: 10px 14px 24px; }
-  .dialControls { display: block; }
+  .dialkitFrame { height: 600px; }
+  .installPanel { padding: 15px; }
+  .installCommand { align-items: stretch; height: auto; padding: 5px; flex-direction: column; gap: 5px; }
+  .installCommand code { padding: 10px 8px; white-space: normal; overflow-wrap: anywhere; line-height: 1.5; }
+  .installCommand button { width: 100%; }
 }
 
 @media (prefers-reduced-motion: reduce) {

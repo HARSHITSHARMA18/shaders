@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import "dialkit/styles.css";
 import "./globals.css";
 
 export async function generateMetadata(): Promise<Metadata> {

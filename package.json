@@ -7,14 +7,17 @@
   },
   "scripts": {
     "dev": "vinext dev",
-    "build": "vinext build",
+    "build": "npm run registry:build && vinext build",
     "start": "vinext start",
+    "registry:build": "node scripts/build-registry.mjs",
     "test": "npm run build && node --test tests/rendered-html.test.mjs",
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
+    "dialkit": "^1.4.2",
     "drizzle-orm": "0.45.2",
+    "motion": "^12.42.2",
     "next": "16.2.6",
     "react": "19.2.6",
     "react-dom": "19.2.6"
