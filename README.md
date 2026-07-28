@@ -31,7 +31,7 @@ The production build regenerates the registry files in `public/r` before compili
 Every shader page displays an installation command using the current site origin:
 
 ```bash
-npx shadcn@latest add https://your-domain.com/r/thermal-pixel-ink.json
+npx shadcn@latest add https://shaders-gamma.vercel.app/r/thermal-pixel-ink.json
 ```
 
 Registry source components live in `registry/default`. Run `npm run registry:build` after changing a registry component or its metadata.
