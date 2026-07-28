@@ -2,12 +2,22 @@
 
 import Link from "next/link";
 import { SolaceLogo } from "./SolaceLogo";
+import { FieldShaderVariant, SolaceFieldShader } from "./SolaceFieldShader";
 import { ThermalPixelShader } from "./ThermalPixelShader";
 
-const studies = [
-  { number: "02", title: "Viscous cursor dye", copy: "Velocity, curl and folded trails.", preview: "viscous" },
-  { number: "03", title: "Reaction bloom", copy: "A pointer-triggered chemical garden.", preview: "reaction" },
-  { number: "04", title: "Cellular contagion", copy: "Excite, burn, cool, repeat.", preview: "cellular" },
+const liveStudies: Array<{
+  number: string;
+  title: string;
+  copy: string;
+  slug: string;
+  variant: FieldShaderVariant;
+}> = [
+  { number: "02", title: "Viscous cursor dye", copy: "Velocity, curl and folded trails.", slug: "viscous-cursor-dye", variant: "viscous" },
+  { number: "03", title: "Reaction bloom", copy: "A pointer-triggered chemical garden.", slug: "reaction-bloom", variant: "reaction" },
+  { number: "04", title: "Cellular contagion", copy: "Excite, burn, cool, repeat.", slug: "cellular-contagion", variant: "cellular" },
+];
+
+const queuedStudies = [
   { number: "05", title: "Magnetic pixels", copy: "Spring-bound particles under tension.", preview: "magnetic" },
   { number: "06", title: "Chromatic refraction", copy: "Split light around interface edges.", preview: "chromatic" },
 ];
@@ -45,7 +55,27 @@ export function ShaderCatalog() {
             </div>
           </Link>
 
-          {studies.map((study) => (
+          {liveStudies.map((study) => (
+            <Link className="shaderCard" href={`/shaders/${study.slug}`} key={study.number}>
+              <div className="shaderPreview livePreview">
+                <SolaceFieldShader
+                  className="catalogCanvas"
+                  variant={study.variant}
+                  scale={study.variant === "cellular" ? 0.72 : 1}
+                  speed={0.48}
+                  trail={0.55}
+                />
+                <span className="availableBadge">Available</span>
+              </div>
+              <div className="shaderCardBody">
+                <div><span>{study.number}</span><h2>{study.title}</h2></div>
+                <p>{study.copy}</p>
+                <span className="openLabel">Open experiment →</span>
+              </div>
+            </Link>
+          ))}
+
+          {queuedStudies.map((study) => (
             <article className="shaderCard queuedCard" key={study.number}>
               <div className={`shaderPreview studyPreview ${study.preview}`} aria-hidden="true"><i /><i /><i /></div>
               <div className="shaderCardBody">

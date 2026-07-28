@@ -14,6 +14,42 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "viscous-cursor-dye",
+      "type": "registry:component",
+      "title": "Viscous Cursor Dye",
+      "description": "A pointer-reactive folded dye field rendered with WebGL.",
+      "files": [
+        {
+          "path": "registry/default/field-shaders/solace-field-shader.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "reaction-bloom",
+      "type": "registry:component",
+      "title": "Reaction Bloom",
+      "description": "A pointer-seeded field of rings, membranes, and cellular growth.",
+      "files": [
+        {
+          "path": "registry/default/field-shaders/solace-field-shader.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "cellular-contagion",
+      "type": "registry:component",
+      "title": "Cellular Contagion",
+      "description": "A discrete pointer-reactive field with four quantized material states.",
+      "files": [
+        {
+          "path": "registry/default/field-shaders/solace-field-shader.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }
