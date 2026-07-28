@@ -11,8 +11,6 @@ import {
   SolaceFieldShader,
 } from "./SolaceFieldShader";
 
-const DEPLOYED_ORIGIN = "https://solace-shaders-lab.swetasharma02.chatgpt.site";
-
 const DEFINITIONS: Record<FieldShaderVariant, {
   number: string;
   slug: string;
@@ -91,7 +89,7 @@ export function FieldShaderLab({ variant }: { variant: FieldShaderVariant }) {
   const origin = useSyncExternalStore(
     () => () => undefined,
     () => window.location.origin,
-    () => DEPLOYED_ORIGIN,
+    () => "",
   );
   const [codeOpen, setCodeOpen] = useState(false);
   const [copied, setCopied] = useState<"install" | "jsx" | null>(null);
@@ -108,7 +106,10 @@ export function FieldShaderLab({ variant }: { variant: FieldShaderVariant }) {
     [dial.values],
   );
 
-  const registryCommand = `npx shadcn@latest add ${origin}/r/${definition.slug}.json`;
+  const registryUrl = `${origin}/r/${definition.slug}.json`;
+  const registryCommand = origin
+    ? `npx shadcn@latest add ${registryUrl}`
+    : `npx shadcn@latest add /r/${definition.slug}.json`;
   const snippet = `import { SolaceFieldShader } from "@/components/solace-field-shader";
 
 <div className="relative h-[560px] overflow-hidden rounded-2xl">

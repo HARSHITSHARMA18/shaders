@@ -10,8 +10,6 @@ import {
   ThermalPixelShader,
 } from "./ThermalPixelShader";
 
-const DEPLOYED_ORIGIN = "https://solace-shaders-lab.swetasharma02.chatgpt.site";
-
 const DIAL_CONFIG = {
   geometry: {
     cellSize: [10, 6, 18, 1] as [number, number, number, number],
@@ -67,7 +65,7 @@ export function ShaderLab() {
   const origin = useSyncExternalStore(
     () => () => undefined,
     () => window.location.origin,
-    () => DEPLOYED_ORIGIN,
+    () => "",
   );
   const [codeOpen, setCodeOpen] = useState(false);
   const [copied, setCopied] = useState<"install" | "jsx" | null>(null);
@@ -89,7 +87,10 @@ export function ShaderLab() {
     [dial.values],
   );
 
-  const registryCommand = `npx shadcn@latest add ${origin}/r/thermal-pixel-ink.json`;
+  const registryUrl = `${origin}/r/thermal-pixel-ink.json`;
+  const registryCommand = origin
+    ? `npx shadcn@latest add ${registryUrl}`
+    : "npx shadcn@latest add /r/thermal-pixel-ink.json";
   const snippet = `import { ThermalPixelShader } from "@/components/thermal-pixel-shader";
 
 <div className="relative h-[560px] overflow-hidden rounded-2xl">

@@ -57,7 +57,7 @@ const definitions = [
 const catalog = {
   $schema: "https://ui.shadcn.com/schema/registry.json",
   name: "solace-shaders",
-  homepage: "https://solace-shaders-lab.swetasharma02.chatgpt.site",
+  homepage: "https://www.solaceui.com",
   items: definitions.map(({ name, title, description, path }) => ({
     name,
     type: "registry:component",
