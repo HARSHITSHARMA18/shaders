@@ -3,6 +3,7 @@
 import { useMemo, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { DialRoot, useDialKitController, type DialConfig } from "dialkit";
+import { SolaceLogo } from "./SolaceLogo";
 import {
   PaletteName,
   ThermalPixelSettings,
@@ -118,15 +119,11 @@ export function ShaderLab() {
     <div className="labShell detailShell">
       <header className="topbar">
         <Link className="wordmark" href="/" aria-label="Back to Solace Shaders catalog">
-          <span className="brandMark" aria-hidden="true" />
+          <SolaceLogo className="solaceLogo" />
           <span>Solace</span>
           <span className="brandDivider">/</span>
           <span className="brandSection">Shaders</span>
         </Link>
-        <div className="topMeta">
-          <Link href="/">Catalog</Link>
-          <span className="liveStatus"><i /> WebGL live</span>
-        </div>
       </header>
 
       <main className="workspace detailWorkspace" id="top">

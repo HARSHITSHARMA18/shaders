@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { SolaceLogo } from "./SolaceLogo";
 import { ThermalPixelShader } from "./ThermalPixelShader";
 
 const studies = [
@@ -16,7 +17,7 @@ export function ShaderCatalog() {
     <div className="catalogPage">
       <header className="catalogHeader">
         <Link className="wordmark" href="/" aria-label="Solace Shaders home">
-          <span className="brandMark" aria-hidden="true" />
+          <SolaceLogo className="solaceLogo" />
           <span>Solace</span>
           <span className="brandDivider">/</span>
           <span className="brandSection">Shaders</span>
@@ -57,7 +58,10 @@ export function ShaderCatalog() {
         </section>
       </main>
 
-      <footer className="catalogFooter"><span>Solace UI</span><span>One material at a time.</span></footer>
+      <footer className="catalogFooter">
+        <span className="footerBrand"><SolaceLogo className="solaceLogo footerLogo" />Solace UI</span>
+        <span>One material at a time.</span>
+      </footer>
     </div>
   );
 }
