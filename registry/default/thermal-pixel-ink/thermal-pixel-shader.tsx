@@ -4,7 +4,16 @@
 
 import { useEffect, useMemo, useRef } from "react";
 
-export type PaletteName = "wild" | "ember" | "mono";
+export type PaletteName = "wild" | "ember" | "ultraviolet" | "lagoon" | "mono";
+
+export type ThermalPixelColors = {
+  background: string;
+  shadow: string;
+  cool: string;
+  warm: string;
+  hot: string;
+  peak: string;
+};
 
 export type ThermalPixelSettings = {
   cellSize: number;
@@ -18,6 +27,7 @@ export type ThermalPixelSettings = {
   gap: number;
   bandShift: number;
   palette: PaletteName;
+  colors?: ThermalPixelColors;
 };
 
 type Props = Partial<ThermalPixelSettings> & {
@@ -123,14 +133,20 @@ void main() {
   outColor = vec4(mix(u_background, color, tile), 1.0);
 }`;
 
-const PALETTES: Record<PaletteName, string[]> = {
-  wild: ["#efeee8", "#101932", "#1236ff", "#ffd522", "#f0432f", "#d8ff2f"],
-  ember: ["#f2ede3", "#2d1018", "#8f1d27", "#ed5b2a", "#ffae19", "#fff08a"],
-  mono: ["#eeeee8", "#181a18", "#3d423e", "#737b74", "#b5bdb3", "#f8faf3"],
+export const THERMAL_PALETTES: Record<PaletteName, ThermalPixelColors> = {
+  wild: { background: "#efeee8", shadow: "#101932", cool: "#1236ff", warm: "#ffd522", hot: "#f0432f", peak: "#d8ff2f" },
+  ember: { background: "#f2ede3", shadow: "#2d1018", cool: "#8f1d27", warm: "#ed5b2a", hot: "#ffae19", peak: "#fff08a" },
+  ultraviolet: { background: "#f1ecff", shadow: "#17102e", cool: "#4c1d95", warm: "#7c3aed", hot: "#e879f9", peak: "#f5d0fe" },
+  lagoon: { background: "#edfdf9", shadow: "#092f35", cool: "#0e7490", warm: "#2dd4bf", hot: "#a3e635", peak: "#f7fee7" },
+  mono: { background: "#eeeee8", shadow: "#181a18", cool: "#3d423e", warm: "#737b74", hot: "#b5bdb3", peak: "#f8faf3" },
 };
 
 function hexToRgb(hex: string) {
-  const value = Number.parseInt(hex.slice(1), 16);
+  const source = hex.replace("#", "");
+  const normalized = source.length === 3
+    ? source.split("").map((character) => character + character).join("")
+    : source.slice(0, 6);
+  const value = Number.parseInt(normalized, 16);
   return [((value >> 16) & 255) / 255, ((value >> 8) & 255) / 255, (value & 255) / 255];
 }
 
@@ -182,6 +198,7 @@ export function ThermalPixelShader({
   gap = 0.085,
   bandShift = 0,
   palette = "wild",
+  colors,
   resetKey = 0,
   className,
 }: Props) {
@@ -198,8 +215,9 @@ export function ThermalPixelShader({
       gap,
       bandShift,
       palette,
+      colors,
     },
-    [suppliedSettings, cellSize, brushRadius, heat, pressBoost, decay, noise, speed, ambient, gap, bandShift, palette],
+    [suppliedSettings, cellSize, brushRadius, heat, pressBoost, decay, noise, speed, ambient, gap, bandShift, palette, colors],
   );
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const settingsRef = useRef(settings);
@@ -403,13 +421,13 @@ export function ThermalPixelShader({
       gl.uniform1f(displayUniforms.ambient, current.ambient);
       gl.uniform1f(displayUniforms.gap, current.gap);
       gl.uniform1f(displayUniforms.bandShift, current.bandShift);
-      const colors = PALETTES[current.palette].map(hexToRgb);
-      gl.uniform3fv(displayUniforms.background, colors[0]);
-      gl.uniform3fv(displayUniforms.color1, colors[1]);
-      gl.uniform3fv(displayUniforms.color2, colors[2]);
-      gl.uniform3fv(displayUniforms.color3, colors[3]);
-      gl.uniform3fv(displayUniforms.color4, colors[4]);
-      gl.uniform3fv(displayUniforms.color5, colors[5]);
+      const paletteColors = current.colors ?? THERMAL_PALETTES[current.palette];
+      gl.uniform3fv(displayUniforms.background, hexToRgb(paletteColors.background));
+      gl.uniform3fv(displayUniforms.color1, hexToRgb(paletteColors.shadow));
+      gl.uniform3fv(displayUniforms.color2, hexToRgb(paletteColors.cool));
+      gl.uniform3fv(displayUniforms.color3, hexToRgb(paletteColors.warm));
+      gl.uniform3fv(displayUniforms.color4, hexToRgb(paletteColors.hot));
+      gl.uniform3fv(displayUniforms.color5, hexToRgb(paletteColors.peak));
       gl.drawArrays(gl.TRIANGLES, 0, 3);
       animationFrame = requestAnimationFrame(render);
     };

@@ -8,6 +8,9 @@ const shaderNames = [
   "viscous-cursor-dye",
   "reaction-bloom",
   "cellular-contagion",
+  "repulsion-lattice",
+  "magnetic-pixels",
+  "chromatic-refraction",
 ];
 
 async function readJson(path) {
@@ -22,7 +25,7 @@ test("publishes every shader through the generated shadcn registry", async () =>
 
   assert.deepEqual(publicCatalog, sourceCatalog);
   assert.equal(publicCatalog.name, "solace-shaders");
-  assert.equal(publicCatalog.homepage, "https://www.solaceui.com");
+  assert.equal(publicCatalog.homepage, "https://shaders.solaceui.com");
   assert.deepEqual(
     publicCatalog.items.map(({ name }) => name),
     shaderNames,
@@ -43,6 +46,9 @@ test("keeps all catalog detail routes and their shader labs", async () => {
     ["viscous-cursor-dye", /variant="viscous"/],
     ["reaction-bloom", /variant="reaction"/],
     ["cellular-contagion", /variant="cellular"/],
+    ["repulsion-lattice", /variant="repulsion"/],
+    ["magnetic-pixels", /variant="magnetic"/],
+    ["chromatic-refraction", /variant="chromatic"/],
   ];
 
   for (const [slug, expected] of routes) {

@@ -101,6 +101,12 @@ summary:focus-visible {
 }
 
 .catalogHero .eyebrow { grid-column: 1 / -1; color: #747873; margin-bottom: -12px; }
+.catalogHeroLink {
+  width: fit-content;
+  text-decoration: none;
+  transition: color 160ms ease;
+}
+.catalogHeroLink:hover { color: var(--ink); }
 
 .catalogHero h1 {
   margin: 0;
@@ -164,6 +170,17 @@ summary:focus-visible {
   backdrop-filter: blur(8px);
 }
 
+.queuedCard .shaderPreview::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background: rgba(12, 14, 13, 0.34);
+  pointer-events: none;
+}
+.queuedCard .availableBadge { z-index: 2; }
+.queuedCard .shaderCardBody { opacity: 0.58; }
+
 .shaderCardBody { padding: 19px 20px 20px; }
 .shaderCardBody > div { display: flex; gap: 14px; align-items: baseline; }
 .shaderCardBody > div > span { color: var(--accent); font: 9px/1 "SFMono-Regular", Consolas, monospace; }
@@ -219,8 +236,13 @@ summary:focus-visible {
   display: inline-flex;
   align-items: center;
   gap: 9px;
+  color: inherit;
+  text-decoration: none;
 }
 
+.footerBrand:hover { color: var(--ink); }
+.footerCredit a { color: var(--ink); text-decoration: none; }
+.footerCredit a:hover { text-decoration: underline; text-underline-offset: 3px; }
 .footerLogo { width: 20px; }
 
 /* Detail */
@@ -498,38 +520,276 @@ summary:focus-visible {
 /* Actual DialKit host and registry installer */
 
 .dialkitFrame {
+  position: relative;
   overflow: visible;
 }
 
 .dialkitFrame > .dialkit-root {
   width: 100%;
   max-height: none;
+  --dial-glass-bg: #171917;
+  --dial-surface: rgba(255, 255, 255, 0.035);
+  --dial-surface-hover: rgba(255, 255, 255, 0.07);
+  --dial-surface-active: rgba(255, 255, 255, 0.085);
+  --dial-surface-subtle: rgba(255, 255, 255, 0.045);
+  --dial-border: rgba(255, 255, 255, 0.075);
+  --dial-border-hover: rgba(255, 255, 255, 0.13);
 }
 
 .dialkitFrame .dialkit-panel {
   height: auto;
   max-height: none;
   overflow: visible;
+  border-radius: 16px;
 }
 
 .dialkitFrame .dialkit-panel[data-mode="inline"] .dialkit-panel-wrapper {
   height: auto;
   max-height: none;
+  border-radius: 16px;
 }
 
 .dialkitFrame .dialkit-panel-inner {
   height: auto;
   max-height: none;
   overflow: visible;
+  border-radius: 16px;
+  background-clip: padding-box;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.22);
 }
 
-.dialkitCredit {
-  margin: 10px 4px 0;
-  color: #646b65;
-  font: 8px/1.45 "SFMono-Regular", Consolas, monospace;
+.dialkitFrame .dialkit-panel-header {
+  padding-bottom: 9px;
+  margin-bottom: 16px;
 }
 
-.dialkitCredit a { color: #9aa29a; }
+.dialkitFrame .dialkit-color-control { display: none; }
+
+.dialResetButton {
+  position: absolute;
+  top: 13px;
+  right: 13px;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 21px;
+  height: 21px;
+  padding: 2px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: #737a74;
+  transition: color 150ms ease, transform 180ms ease;
+}
+
+.dialResetButton:hover {
+  color: #d8ddd7;
+  transform: rotate(-18deg);
+}
+
+.dialResetButton:active { transform: rotate(-18deg) scale(0.92); }
+.dialResetButton svg {
+  width: 15px;
+  height: 15px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+
+.paletteEditor {
+  margin-top: 9px;
+  padding: 10px;
+  border: 1px solid #2b2f2b;
+  border-radius: 12px;
+  background: #111311;
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.24);
+}
+
+.paletteEditorHeading,
+.paletteEditorMeta,
+.paletteHueControl {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.paletteEditorHeading {
+  margin-bottom: 9px;
+  padding: 0 2px;
+  color: #d8ddd7;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.paletteEditorHeading > span:last-child {
+  color: #626962;
+  font: 8px/1 "SFMono-Regular", Consolas, monospace;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.paletteSwatchRail {
+  display: flex;
+  height: 34px;
+  gap: 0;
+  padding: 0;
+  overflow: hidden;
+  border: 1px solid #292c29;
+  border-radius: 9px;
+  background: #0b0d0c;
+}
+
+.paletteSwatchButton {
+  position: relative;
+  min-width: 0;
+  height: 100%;
+  flex: 1;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  transition: flex-grow 180ms ease, filter 150ms ease;
+}
+
+.paletteSwatchButton:hover { filter: brightness(1.08); }
+.paletteSwatchButton[data-active="true"] { flex-grow: 1.14; }
+.paletteSwatchButton[data-active="true"]::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 5px;
+  width: 5px;
+  height: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.92);
+  border-radius: 50%;
+  background: rgba(12, 14, 13, 0.72);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.paletteSwatchButton > span {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  border-radius: 0;
+  box-shadow: inset -1px 0 rgba(0, 0, 0, 0.12);
+}
+
+.paletteEditorSurface {
+  margin-top: 7px;
+  padding: 9px;
+  border: 1px solid #292d29;
+  border-radius: 10px;
+  background: #191b19;
+}
+
+.paletteEditorMeta {
+  min-height: 28px;
+  margin-bottom: 8px;
+  color: #c9cec8;
+  font-size: 10px;
+}
+
+.paletteEditorMeta input {
+  width: 76px;
+  padding: 6px 7px;
+  border: 1px solid #333733;
+  border-radius: 6px;
+  outline: none;
+  background: #101210;
+  color: #f0f2ed;
+  font: 9px/1 "SFMono-Regular", Consolas, monospace;
+  letter-spacing: 0.04em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
+.paletteEditorMeta input:focus {
+  border-color: #687168;
+  box-shadow: 0 0 0 2px rgba(216, 255, 47, 0.1);
+}
+
+.paletteSaturationField {
+  position: relative;
+  height: 118px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 9px;
+  background-image:
+    linear-gradient(to top, #000, transparent),
+    linear-gradient(to right, #fff, transparent);
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.paletteFieldCursor {
+  position: absolute;
+  width: 13px;
+  height: 13px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.8);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+}
+
+.paletteHueControl {
+  display: grid;
+  grid-template-columns: 30px minmax(0, 1fr) 32px;
+  gap: 8px;
+  margin-top: 10px;
+  color: #777f78;
+  font: 8px/1 "SFMono-Regular", Consolas, monospace;
+  text-transform: uppercase;
+}
+
+.paletteHueControl input {
+  width: 100%;
+  height: 8px;
+  margin: 0;
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  outline: none;
+  background: linear-gradient(90deg, #ff3131, #ffe927, #37ec55, #24e8ec, #3157ff, #cf38f3, #ff3131);
+}
+
+.paletteHueControl input::-webkit-slider-thumb {
+  width: 14px;
+  height: 14px;
+  appearance: none;
+  border: 2px solid #f7f8f4;
+  border-radius: 50%;
+  background: #161816;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.72);
+}
+
+.paletteHueControl input::-moz-range-thumb {
+  width: 11px;
+  height: 11px;
+  border: 2px solid #f7f8f4;
+  border-radius: 50%;
+  background: #161816;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.72);
+}
+
+.paletteHueControl output { text-align: right; }
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
 
 .installPanel {
   margin-top: 16px;
@@ -607,7 +867,6 @@ summary:focus-visible {
   .labShell { grid-template-columns: 1fr; grid-template-rows: 58px auto auto; grid-template-areas: "topbar" "workspace" "inspector"; }
   .inspector { display: block; overflow: visible; border-left: 0; border-top: 1px solid var(--border); }
   .dialkitFrame { max-width: 720px; margin: 0 auto; }
-  .dialkitCredit { max-width: 720px; margin: 10px auto 0; }
   .installPanel { grid-template-columns: 1fr; }
   .usageToggle { justify-self: start; }
 }

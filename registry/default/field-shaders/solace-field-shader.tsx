@@ -2,8 +2,21 @@
 
 import { useEffect, useMemo, useRef } from "react";
 
-export type FieldShaderVariant = "viscous" | "reaction" | "cellular";
-export type FieldShaderPalette = "signal" | "acid" | "mono";
+export type FieldShaderVariant =
+  | "viscous"
+  | "reaction"
+  | "cellular"
+  | "repulsion"
+  | "magnetic"
+  | "chromatic";
+export type FieldShaderPalette = "signal" | "acid" | "ember" | "glacier" | "mono";
+
+export type FieldShaderColors = {
+  background: string;
+  primary: string;
+  secondary: string;
+  highlight: string;
+};
 
 export type FieldShaderSettings = {
   scale: number;
@@ -12,6 +25,7 @@ export type FieldShaderSettings = {
   distortion: number;
   trail: number;
   palette: FieldShaderPalette;
+  colors?: FieldShaderColors;
 };
 
 type Props = Partial<FieldShaderSettings> & {
@@ -72,6 +86,12 @@ float fbm(vec2 p) {
   return value;
 }
 
+float segmentDistance(vec2 p, vec2 a, vec2 b) {
+  vec2 segment = b - a;
+  float amount = clamp(dot(p - a, segment) / max(dot(segment, segment), 0.00001), 0.0, 1.0);
+  return length(p - (a + segment * amount));
+}
+
 void main() {
   float aspect = u_resolution.x / max(u_resolution.y, 1.0);
   vec2 p = (v_uv - 0.5) * vec2(aspect, 1.0);
@@ -106,7 +126,7 @@ void main() {
     color = mix(color, u_colorA, smoothstep(0.42, 0.72, cells) * 0.6);
     color = mix(color, u_colorB, bloom * membrane * u_intensity);
     color = mix(color, u_colorC, bloom * smoothstep(0.78, 0.98, rings) * u_intensity);
-  } else {
+  } else if (u_variant == 2) {
     float cellScale = 28.0 + u_scale * 16.0;
     vec2 cell = floor((p + vec2(aspect, 1.0) * 0.5) * cellScale);
     vec2 center = (cell + 0.5) / cellScale - vec2(aspect, 1.0) * 0.5;
@@ -122,19 +142,125 @@ void main() {
     else if (state < 3.0) color = u_colorB;
     else color = u_colorC;
     color = mix(u_background, color, tile);
+  } else if (u_variant == 3) {
+    float density = 34.0 + u_scale * 18.0;
+    vec2 bounds = vec2(aspect, 1.0);
+    vec2 baseCell = floor((p + bounds * 0.5) * density);
+    float velocityAmount = min(1.0, length(u_velocity) * 5.0);
+    float coverage = 0.0;
+    float totalWeight = 0.0;
+    vec3 weightedColor = vec3(0.0);
+
+    for (int offsetY = -4; offsetY <= 4; offsetY++) {
+      for (int offsetX = -4; offsetX <= 4; offsetX++) {
+        vec2 cell = baseCell + vec2(float(offsetX), float(offsetY));
+        vec2 resting = (cell + 0.5) / density - bounds * 0.5;
+        vec2 away = resting - mouse;
+        float distanceToMouse = length(away);
+        vec2 direction = away / max(distanceToMouse, 0.001);
+        float angle = atan(away.y, away.x);
+
+        // The axis-weighted force creates the four soft lobes by moving dots,
+        // rather than removing fragments from a pre-cut shape.
+        float axisBias = 0.72 + 0.28 * pow(abs(cos(angle * 2.0)), 2.0);
+        float influenceRadius = 0.115 + u_trail * 0.055;
+        float falloff = exp(-pow(distanceToMouse / influenceRadius, 2.0) * 1.55);
+        float force = falloff * axisBias;
+        vec2 tangent = vec2(-direction.y, direction.x);
+        float wake = sin(angle * 2.0 - t * 0.9) * velocityAmount * falloff;
+        vec2 displaced = resting
+          + direction * force * (0.052 + u_distortion * 0.026)
+          + tangent * wake * 0.012
+          + u_velocity * falloff * (0.018 + u_trail * 0.025);
+
+        float pointDistance = length((p - displaced) * density);
+        float lowerField = 1.0 - smoothstep(-0.5, 0.4, resting.y);
+        float horizon = smoothstep(0.0, 0.36, lowerField);
+        float pointSize = mix(0.05, 0.18, lowerField) * (0.82 + u_intensity * 0.18);
+        float point = 1.0 - smoothstep(pointSize, pointSize + 0.072, pointDistance);
+        float grain = hash(cell);
+        float shimmer = 0.5 + 0.5 * sin(t * 1.1 + grain * 18.0 + resting.y * 9.0);
+        float verticalGlow = pow(lowerField, 2.2);
+        float compression = smoothstep(0.32, 0.82, force * density * 0.18);
+        vec3 pointColor = mix(u_colorA, u_colorB, lowerField);
+        pointColor = mix(pointColor, u_colorC, verticalGlow * (0.32 + shimmer * 0.28));
+        pointColor = mix(pointColor, u_colorC, compression * 0.42);
+        float visibility = mix(0.08, 1.0, horizon);
+
+        float weight = point * visibility;
+        weightedColor += pointColor * weight;
+        totalWeight += weight;
+        coverage = max(coverage, weight);
+      }
+    }
+
+    color = mix(u_background, weightedColor / max(totalWeight, 0.0001), clamp(coverage, 0.0, 1.0));
+  } else if (u_variant == 4) {
+    float density = 16.0 + u_scale * 13.0;
+    vec2 bounds = vec2(aspect, 1.0);
+    vec2 grid = (p + bounds * 0.5) * density;
+    vec2 cell = floor(grid);
+    vec2 resting = (cell + 0.5) / density - bounds * 0.5;
+    float seed = hash(cell);
+    vec2 toMouse = mouse - resting;
+    float distanceToMouse = length(toMouse);
+    vec2 direction = toMouse / max(distanceToMouse, 0.001);
+    vec2 tangent = vec2(-direction.y, direction.x);
+    float influence = 1.0 - smoothstep(0.05, 0.66 + u_trail * 0.22, distanceToMouse);
+    float polarity = sin(seed * 12.0 + t * 1.35);
+    vec2 displacement = direction * influence * polarity * (0.035 + u_distortion * 0.09)
+      + tangent * influence * (u_velocity.x - u_velocity.y) * 0.16;
+    vec2 displaced = resting + displacement;
+    vec2 local = (p - displaced) * density;
+    float diamond = abs(local.x) + abs(local.y);
+    float particle = 1.0 - smoothstep(0.18, 0.29, diamond);
+    float spring = 1.0 - smoothstep(0.006, 0.018, segmentDistance(p, resting, displaced));
+    spring *= smoothstep(0.006, 0.035, length(displacement));
+    float tension = clamp(length(displacement) * density * 0.9, 0.0, 1.0);
+    color = mix(color, u_colorA, spring * (0.28 + tension * 0.5));
+    color = mix(color, mix(u_colorB, u_colorC, tension), particle * (0.7 + u_intensity * 0.3));
+    float magneticHalo = (1.0 - smoothstep(0.12, 0.75, distanceToMouse))
+      * (0.5 + 0.5 * sin(distanceToMouse * 27.0 - t * 2.2));
+    color = mix(color, u_colorA, magneticHalo * 0.08);
+  } else {
+    vec2 q = p - mouse;
+    float radius = length(q);
+    vec2 normal = q / max(radius, 0.001);
+    float lens = 1.0 - smoothstep(0.03, 0.72 + u_trail * 0.18, radius);
+    float velocity = min(1.0, length(u_velocity) * 7.0);
+    vec2 slip = normal * (0.012 + u_distortion * 0.034) * lens
+      + u_velocity * (0.05 + u_trail * 0.1);
+    float fieldA = fbm((p + slip) * (4.2 + u_scale * 1.8) + vec2(t * 0.08, 0.0));
+    float fieldB = fbm((p - slip) * (4.2 + u_scale * 1.8) + vec2(-t * 0.06, 4.1));
+    float fieldC = fbm((p + vec2(-slip.y, slip.x)) * (5.0 + u_scale) + vec2(7.3, t * 0.05));
+    float bandA = smoothstep(0.48, 0.72, fieldA + lens * 0.2);
+    float bandB = smoothstep(0.5, 0.75, fieldB + lens * 0.16);
+    float bandC = smoothstep(0.57, 0.8, fieldC + lens * (0.1 + velocity * 0.18));
+    color = mix(color, u_colorA, bandA * 0.54);
+    color = mix(color, u_colorB, bandB * lens * (0.5 + u_intensity * 0.38));
+    color = mix(color, u_colorC, bandC * lens * (0.42 + u_intensity * 0.48));
+    float rim = 1.0 - smoothstep(0.012, 0.045, abs(radius - (0.27 + u_distortion * 0.11)));
+    float prism = pow(max(0.0, 0.5 + 0.5 * sin(atan(q.y, q.x) * 7.0 + radius * 30.0 - t)), 8.0);
+    color = mix(color, mix(u_colorB, u_colorC, prism), rim * (0.38 + velocity * 0.42));
   }
 
   outColor = vec4(color, 1.0);
 }`;
 
-const PALETTES: Record<FieldShaderPalette, [string, string, string, string]> = {
-  signal: ["#090b0a", "#1236ff", "#f0432f", "#d8ff2f"],
-  acid: ["#0e0d17", "#7638fa", "#ff4c91", "#eaff38"],
-  mono: ["#0d0f0e", "#3f4541", "#9ba39d", "#f4f6f2"],
+export const FIELD_PALETTES: Record<FieldShaderPalette, FieldShaderColors> = {
+  signal: { background: "#090b0a", primary: "#1236ff", secondary: "#f0432f", highlight: "#d8ff2f" },
+  acid: { background: "#0e0d17", primary: "#7638fa", secondary: "#ff4c91", highlight: "#eaff38" },
+  ember: { background: "#120b08", primary: "#6f1d12", secondary: "#f26a1b", highlight: "#ffd166" },
+  glacier: { background: "#071519", primary: "#155e75", secondary: "#67e8f9", highlight: "#ecfeff" },
+  mono: { background: "#0d0f0e", primary: "#3f4541", secondary: "#9ba39d", highlight: "#f4f6f2" },
 };
 
 function rgb(hex: string) {
-  const value = Number.parseInt(hex.slice(1), 16);
+  const source = hex.replace("#", "");
+  const normalized = source.length === 3
+    ? source.split("").map((character) => character + character).join("")
+    : source.slice(0, 6);
+  const value = Number.parseInt(normalized, 16);
   return [((value >> 16) & 255) / 255, ((value >> 8) & 255) / 255, (value & 255) / 255];
 }
 
@@ -174,11 +300,12 @@ export function SolaceFieldShader({
   distortion = 0.7,
   trail = 0.45,
   palette = "signal",
+  colors,
   className,
 }: Props) {
   const settings = useMemo(
-    () => suppliedSettings ?? { scale, intensity, speed, distortion, trail, palette },
-    [suppliedSettings, scale, intensity, speed, distortion, trail, palette],
+    () => suppliedSettings ?? { scale, intensity, speed, distortion, trail, palette, colors },
+    [suppliedSettings, scale, intensity, speed, distortion, trail, palette, colors],
   );
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const settingsRef = useRef(settings);
@@ -264,7 +391,7 @@ export function SolaceFieldShader({
       previous.x = mouse.x;
       previous.y = mouse.y;
       const current = settingsRef.current;
-      const colors = PALETTES[current.palette];
+      const paletteColors = current.colors ?? FIELD_PALETTES[current.palette];
       gl.viewport(0, 0, canvas.width, canvas.height);
       gl.useProgram(shaderProgram);
       gl.uniform2f(uniforms.resolution, canvas.width, canvas.height);
@@ -276,11 +403,19 @@ export function SolaceFieldShader({
       gl.uniform1f(uniforms.speed, current.speed);
       gl.uniform1f(uniforms.distortion, current.distortion);
       gl.uniform1f(uniforms.trail, current.trail);
-      gl.uniform1i(uniforms.variant, variant === "viscous" ? 0 : variant === "reaction" ? 1 : 2);
-      gl.uniform3fv(uniforms.background, rgb(colors[0]));
-      gl.uniform3fv(uniforms.colorA, rgb(colors[1]));
-      gl.uniform3fv(uniforms.colorB, rgb(colors[2]));
-      gl.uniform3fv(uniforms.colorC, rgb(colors[3]));
+      const variantIndex = {
+        viscous: 0,
+        reaction: 1,
+        cellular: 2,
+        repulsion: 3,
+        magnetic: 4,
+        chromatic: 5,
+      }[variant];
+      gl.uniform1i(uniforms.variant, variantIndex);
+      gl.uniform3fv(uniforms.background, rgb(paletteColors.background));
+      gl.uniform3fv(uniforms.colorA, rgb(paletteColors.primary));
+      gl.uniform3fv(uniforms.colorB, rgb(paletteColors.secondary));
+      gl.uniform3fv(uniforms.colorC, rgb(paletteColors.highlight));
       gl.drawArrays(gl.TRIANGLES, 0, 3);
       frame = requestAnimationFrame(render);
     };

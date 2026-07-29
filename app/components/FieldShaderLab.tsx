@@ -1,15 +1,20 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { DialRoot, useDialKitController, type DialConfig } from "dialkit";
+import { PaletteEditor } from "./PaletteEditor";
+import { PanelResetButton } from "./PanelResetButton";
 import { SolaceLogo } from "./SolaceLogo";
 import {
+  FIELD_PALETTES,
   FieldShaderPalette,
   FieldShaderSettings,
   FieldShaderVariant,
   SolaceFieldShader,
 } from "./SolaceFieldShader";
+
+const CANONICAL_ORIGIN = "https://shaders.solaceui.com";
 
 const DEFINITIONS: Record<FieldShaderVariant, {
   number: string;
@@ -39,31 +44,70 @@ const DEFINITIONS: Record<FieldShaderVariant, {
     description: "A discrete field that moves through dormant, excited, burning, and cooling color states.",
     instruction: "Sweep the field to move the contagion front",
   },
+  repulsion: {
+    number: "005",
+    slug: "repulsion-lattice",
+    title: "Repulsion lattice",
+    description: "A rising halftone field that parts into a compact four-point aperture around the pointer.",
+    instruction: "Move slowly to open a void; move quickly to shear its edge",
+  },
+  magnetic: {
+    number: "006",
+    slug: "magnetic-pixels",
+    title: "Magnetic pixels",
+    description: "Spring-tethered particles switch polarity around the pointer and reveal the tension holding them in place.",
+    instruction: "Sweep across the lattice to reverse its local polarity",
+  },
+  chromatic: {
+    number: "007",
+    slug: "chromatic-refraction",
+    title: "Chromatic refraction",
+    description: "A moving glass field separates spectral layers and catches velocity along its refractive rim.",
+    instruction: "Move quickly to pull the spectral layers apart",
+  },
 };
 
-const FIELD_DIALS = {
-  material: {
-    scale: [1, 0.35, 2.4, 0.05] as [number, number, number, number],
-    intensity: [1, 0.35, 1.8, 0.05] as [number, number, number, number],
-    distortion: [0.7, 0, 1.5, 0.05] as [number, number, number, number],
-    trail: [0.45, 0, 1, 0.05] as [number, number, number, number],
-  },
-  motion: {
-    speed: [0.7, 0, 1.6, 0.05] as [number, number, number, number],
-    animate: true,
-  },
-  color: {
-    palette: {
-      type: "select",
-      options: [
-        { value: "signal", label: "Signal" },
-        { value: "acid", label: "Acid" },
-        { value: "mono", label: "Monochrome" },
-      ],
-      default: "signal",
+const DEFAULT_PALETTES: Record<FieldShaderVariant, FieldShaderPalette> = {
+  viscous: "signal",
+  reaction: "signal",
+  cellular: "signal",
+  repulsion: "ember",
+  magnetic: "signal",
+  chromatic: "acid",
+};
+
+function createFieldDials(defaultPalette: FieldShaderPalette) {
+  const colors = FIELD_PALETTES[defaultPalette];
+  return {
+    material: {
+      scale: [1, 0.35, 2.4, 0.05] as [number, number, number, number],
+      intensity: [1, 0.35, 1.8, 0.05] as [number, number, number, number],
+      distortion: [0.7, 0, 1.5, 0.05] as [number, number, number, number],
+      trail: [0.45, 0, 1, 0.05] as [number, number, number, number],
     },
-  },
-} satisfies DialConfig;
+    motion: {
+      speed: [0.7, 0, 1.6, 0.05] as [number, number, number, number],
+      animate: true,
+    },
+    color: {
+      preset: {
+        type: "select",
+        options: [
+          { value: "signal", label: "Signal" },
+          { value: "acid", label: "Acid" },
+          { value: "ember", label: "Ember" },
+          { value: "glacier", label: "Glacier" },
+          { value: "mono", label: "Monochrome" },
+        ],
+        default: defaultPalette,
+      },
+      background: { type: "color", default: colors.background },
+      primary: { type: "color", default: colors.primary },
+      secondary: { type: "color", default: colors.secondary },
+      highlight: { type: "color", default: colors.highlight },
+    },
+  } satisfies DialConfig;
+}
 
 async function writeClipboard(text: string) {
   if (navigator.clipboard?.writeText) {
@@ -82,14 +126,23 @@ async function writeClipboard(text: string) {
 
 export function FieldShaderLab({ variant }: { variant: FieldShaderVariant }) {
   const definition = DEFINITIONS[variant];
-  const dial = useDialKitController(definition.title, FIELD_DIALS, {
+  const defaultPalette = DEFAULT_PALETTES[variant];
+  const dialConfig = useMemo(() => createFieldDials(defaultPalette), [defaultPalette]);
+  const dial = useDialKitController(definition.title, dialConfig, {
     id: `solace-${definition.slug}`,
     persist: true,
   });
+  const selectedPreset = dial.values.color.preset as FieldShaderPalette;
+  const previousPreset = useRef(selectedPreset);
+  useEffect(() => {
+    if (previousPreset.current === selectedPreset) return;
+    previousPreset.current = selectedPreset;
+    dial.setValues({ color: { ...FIELD_PALETTES[selectedPreset] } });
+  }, [dial, selectedPreset]);
   const origin = useSyncExternalStore(
     () => () => undefined,
     () => window.location.origin,
-    () => "",
+    () => CANONICAL_ORIGIN,
   );
   const [codeOpen, setCodeOpen] = useState(false);
   const [copied, setCopied] = useState<"install" | "jsx" | null>(null);
@@ -101,9 +154,15 @@ export function FieldShaderLab({ variant }: { variant: FieldShaderVariant }) {
       distortion: dial.values.material.distortion,
       trail: dial.values.material.trail,
       speed: dial.values.motion.animate ? dial.values.motion.speed : 0,
-      palette: dial.values.color.palette as FieldShaderPalette,
+      palette: selectedPreset,
+      colors: {
+        background: dial.values.color.background,
+        primary: dial.values.color.primary,
+        secondary: dial.values.color.secondary,
+        highlight: dial.values.color.highlight,
+      },
     }),
-    [dial.values],
+    [dial.values, selectedPreset],
   );
 
   const registryUrl = `${origin}/r/${definition.slug}.json`;
@@ -120,7 +179,12 @@ export function FieldShaderLab({ variant }: { variant: FieldShaderVariant }) {
     speed={${settings.speed.toFixed(2)}}
     distortion={${settings.distortion.toFixed(2)}}
     trail={${settings.trail.toFixed(2)}}
-    palette="${settings.palette}"
+    colors={{
+      background: "${settings.colors?.background}",
+      primary: "${settings.colors?.primary}",
+      secondary: "${settings.colors?.secondary}",
+      highlight: "${settings.colors?.highlight}",
+    }}
     className="h-full w-full"
   />
 </div>`;
@@ -201,12 +265,18 @@ export function FieldShaderLab({ variant }: { variant: FieldShaderVariant }) {
 
       <aside className="inspector" aria-label={`${definition.title} fine-tuning controls`}>
         <div className="dialkitFrame">
+          <PanelResetButton onReset={dial.resetValues} />
           <DialRoot mode="inline" theme="dark" productionEnabled />
+          <PaletteEditor
+            stops={[
+              { key: "background", label: "Background", value: dial.values.color.background },
+              { key: "primary", label: "Primary", value: dial.values.color.primary },
+              { key: "secondary", label: "Secondary", value: dial.values.color.secondary },
+              { key: "highlight", label: "Highlight", value: dial.values.color.highlight },
+            ]}
+            onChange={(key, value) => dial.setValue(`color.${key}`, value)}
+          />
         </div>
-        <p className="dialkitCredit">
-          Controls powered by <a href="https://joshpuckett.me/dialkit" target="_blank" rel="noreferrer">DialKit</a>.
-          Values and presets persist in this browser.
-        </p>
       </aside>
     </div>
   );

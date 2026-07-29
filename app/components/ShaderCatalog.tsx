@@ -2,7 +2,11 @@
 
 import Link from "next/link";
 import { SolaceLogo } from "./SolaceLogo";
-import { FieldShaderVariant, SolaceFieldShader } from "./SolaceFieldShader";
+import {
+  FieldShaderPalette,
+  FieldShaderVariant,
+  SolaceFieldShader,
+} from "./SolaceFieldShader";
 import { ThermalPixelShader } from "./ThermalPixelShader";
 
 const liveStudies: Array<{
@@ -11,15 +15,18 @@ const liveStudies: Array<{
   copy: string;
   slug: string;
   variant: FieldShaderVariant;
+  palette?: FieldShaderPalette;
+  scale?: number;
+  intensity?: number;
+  distortion?: number;
+  trail?: number;
 }> = [
   { number: "02", title: "Viscous cursor dye", copy: "Velocity, curl and folded trails.", slug: "viscous-cursor-dye", variant: "viscous" },
   { number: "03", title: "Reaction bloom", copy: "A pointer-triggered chemical garden.", slug: "reaction-bloom", variant: "reaction" },
-  { number: "04", title: "Cellular contagion", copy: "Excite, burn, cool, repeat.", slug: "cellular-contagion", variant: "cellular" },
-];
-
-const queuedStudies = [
-  { number: "05", title: "Magnetic pixels", copy: "Spring-bound particles under tension.", preview: "magnetic" },
-  { number: "06", title: "Chromatic refraction", copy: "Split light around interface edges.", preview: "chromatic" },
+  { number: "04", title: "Cellular contagion", copy: "Excite, burn, cool, repeat.", slug: "cellular-contagion", variant: "cellular", scale: 0.72 },
+  { number: "05", title: "Repulsion lattice", copy: "A compact four-point aperture moving through a luminous halftone field.", slug: "repulsion-lattice", variant: "repulsion", palette: "ember", scale: 0.82, intensity: 1.08, distortion: 0.92, trail: 0.58 },
+  { number: "06", title: "Magnetic pixels", copy: "Spring-bound particles switch polarity under tension.", slug: "magnetic-pixels", variant: "magnetic", scale: 1.05, distortion: 0.92, trail: 0.62 },
+  { number: "07", title: "Chromatic refraction", copy: "Moving glass splits spectral layers around its rim.", slug: "chromatic-refraction", variant: "chromatic", palette: "acid", scale: 1.15, distortion: 1.05, trail: 0.58 },
 ];
 
 export function ShaderCatalog() {
@@ -37,7 +44,14 @@ export function ShaderCatalog() {
 
       <main>
         <section className="catalogHero">
-          <div className="eyebrow">Solace UI material archive</div>
+          <a
+            className="eyebrow catalogHeroLink"
+            href="https://www.solaceui.com"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Browse tastefully crafted blocks for marketing pages
+          </a>
           <h1>Shaders for interfaces that should feel alive.</h1>
           <p>Explore, tune, and copy interactive visual systems built as reusable Solace UI blocks.</p>
         </section>
@@ -61,9 +75,12 @@ export function ShaderCatalog() {
                 <SolaceFieldShader
                   className="catalogCanvas"
                   variant={study.variant}
-                  scale={study.variant === "cellular" ? 0.72 : 1}
+                  palette={study.palette}
+                  scale={study.scale ?? 1}
+                  intensity={study.intensity}
+                  distortion={study.distortion}
                   speed={0.48}
-                  trail={0.55}
+                  trail={study.trail ?? 0.55}
                 />
                 <span className="availableBadge">Available</span>
               </div>
@@ -75,22 +92,20 @@ export function ShaderCatalog() {
             </Link>
           ))}
 
-          {queuedStudies.map((study) => (
-            <article className="shaderCard queuedCard" key={study.number}>
-              <div className={`shaderPreview studyPreview ${study.preview}`} aria-hidden="true"><i /><i /><i /></div>
-              <div className="shaderCardBody">
-                <div><span>{study.number}</span><h2>{study.title}</h2></div>
-                <p>{study.copy}</p>
-                <span className="researchLabel">Research queue</span>
-              </div>
-            </article>
-          ))}
         </section>
       </main>
 
       <footer className="catalogFooter">
-        <span className="footerBrand"><SolaceLogo className="solaceLogo footerLogo" />Solace UI</span>
-        <span>One material at a time.</span>
+        <a className="footerBrand" href="https://www.solaceui.com" target="_blank" rel="noreferrer">
+          <SolaceLogo className="solaceLogo footerLogo" />
+          Solace UI
+        </a>
+        <span className="footerCredit">
+          Building cool stuff{" "}
+          <a href="https://x.com/harshitlog" target="_blank" rel="noreferrer">
+            @harshitlog
+          </a>
+        </span>
       </footer>
     </div>
   );

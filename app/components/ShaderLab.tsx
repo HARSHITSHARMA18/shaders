@@ -1,14 +1,19 @@
 "use client";
 
-import { useMemo, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { DialRoot, useDialKitController, type DialConfig } from "dialkit";
+import { PaletteEditor } from "./PaletteEditor";
+import { PanelResetButton } from "./PanelResetButton";
 import { SolaceLogo } from "./SolaceLogo";
 import {
   PaletteName,
+  THERMAL_PALETTES,
   ThermalPixelSettings,
   ThermalPixelShader,
 } from "./ThermalPixelShader";
+
+const CANONICAL_ORIGIN = "https://shaders.solaceui.com";
 
 const DIAL_CONFIG = {
   geometry: {
@@ -28,15 +33,23 @@ const DIAL_CONFIG = {
     motion: true,
   },
   color: {
-    palette: {
+    preset: {
       type: "select",
       options: [
         { value: "wild", label: "Wild signal" },
         { value: "ember", label: "Ember" },
+        { value: "ultraviolet", label: "Ultraviolet" },
+        { value: "lagoon", label: "Lagoon" },
         { value: "mono", label: "Monochrome" },
       ],
       default: "wild",
     },
+    background: { type: "color", default: THERMAL_PALETTES.wild.background },
+    shadow: { type: "color", default: THERMAL_PALETTES.wild.shadow },
+    cool: { type: "color", default: THERMAL_PALETTES.wild.cool },
+    warm: { type: "color", default: THERMAL_PALETTES.wild.warm },
+    hot: { type: "color", default: THERMAL_PALETTES.wild.hot },
+    peak: { type: "color", default: THERMAL_PALETTES.wild.peak },
     bandShift: [0, -0.15, 0.15, 0.01] as [number, number, number, number],
   },
 } satisfies DialConfig;
@@ -62,10 +75,17 @@ export function ShaderLab() {
     id: "solace-thermal-pixel-ink",
     persist: true,
   });
+  const selectedPreset = dial.values.color.preset as PaletteName;
+  const previousPreset = useRef(selectedPreset);
+  useEffect(() => {
+    if (previousPreset.current === selectedPreset) return;
+    previousPreset.current = selectedPreset;
+    dial.setValues({ color: { ...THERMAL_PALETTES[selectedPreset] } });
+  }, [dial, selectedPreset]);
   const origin = useSyncExternalStore(
     () => () => undefined,
     () => window.location.origin,
-    () => "",
+    () => CANONICAL_ORIGIN,
   );
   const [codeOpen, setCodeOpen] = useState(false);
   const [copied, setCopied] = useState<"install" | "jsx" | null>(null);
@@ -82,9 +102,17 @@ export function ShaderLab() {
       ambient: dial.values.field.ambient,
       gap: dial.values.geometry.gridGap,
       bandShift: dial.values.color.bandShift,
-      palette: dial.values.color.palette as PaletteName,
+      palette: selectedPreset,
+      colors: {
+        background: dial.values.color.background,
+        shadow: dial.values.color.shadow,
+        cool: dial.values.color.cool,
+        warm: dial.values.color.warm,
+        hot: dial.values.color.hot,
+        peak: dial.values.color.peak,
+      },
     }),
-    [dial.values],
+    [dial.values, selectedPreset],
   );
 
   const registryUrl = `${origin}/r/thermal-pixel-ink.json`;
@@ -105,7 +133,14 @@ export function ShaderLab() {
     ambient={${settings.ambient.toFixed(2)}}
     gap={${settings.gap.toFixed(3)}}
     bandShift={${settings.bandShift.toFixed(2)}}
-    palette="${settings.palette}"
+    colors={{
+      background: "${settings.colors?.background}",
+      shadow: "${settings.colors?.shadow}",
+      cool: "${settings.colors?.cool}",
+      warm: "${settings.colors?.warm}",
+      hot: "${settings.colors?.hot}",
+      peak: "${settings.colors?.peak}",
+    }}
     className="h-full w-full"
   />
 </div>`;
@@ -192,12 +227,20 @@ export function ShaderLab() {
 
       <aside className="inspector" aria-label="Thermal pixel fine-tuning controls">
         <div className="dialkitFrame">
+          <PanelResetButton onReset={dial.resetValues} />
           <DialRoot mode="inline" theme="dark" productionEnabled />
+          <PaletteEditor
+            stops={[
+              { key: "background", label: "Background", value: dial.values.color.background },
+              { key: "shadow", label: "Shadow", value: dial.values.color.shadow },
+              { key: "cool", label: "Cool", value: dial.values.color.cool },
+              { key: "warm", label: "Warm", value: dial.values.color.warm },
+              { key: "hot", label: "Hot", value: dial.values.color.hot },
+              { key: "peak", label: "Peak", value: dial.values.color.peak },
+            ]}
+            onChange={(key, value) => dial.setValue(`color.${key}`, value)}
+          />
         </div>
-        <p className="dialkitCredit">
-          Controls powered by <a href="https://joshpuckett.me/dialkit" target="_blank" rel="noreferrer">DialKit</a>.
-          Values and presets persist in this browser.
-        </p>
       </aside>
     </div>
   );

@@ -1,7 +1,7 @@
 {
   "$schema": "https://ui.shadcn.com/schema/registry.json",
   "name": "solace-shaders",
-  "homepage": "https://www.solaceui.com",
+  "homepage": "https://shaders.solaceui.com",
   "items": [
     {
       "name": "thermal-pixel-ink",
@@ -44,6 +44,42 @@
       "type": "registry:component",
       "title": "Cellular Contagion",
       "description": "A discrete pointer-reactive field with four quantized material states.",
+      "files": [
+        {
+          "path": "registry/default/field-shaders/solace-field-shader.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "repulsion-lattice",
+      "type": "registry:component",
+      "title": "Repulsion Lattice",
+      "description": "A luminous point field that opens and shears around pointer pressure.",
+      "files": [
+        {
+          "path": "registry/default/field-shaders/solace-field-shader.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "magnetic-pixels",
+      "type": "registry:component",
+      "title": "Magnetic Pixels",
+      "description": "Spring-tethered particles with pointer-controlled polarity and visible tension.",
+      "files": [
+        {
+          "path": "registry/default/field-shaders/solace-field-shader.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "chromatic-refraction",
+      "type": "registry:component",
+      "title": "Chromatic Refraction",
+      "description": "A moving glass field that separates spectral layers around the pointer.",
       "files": [
         {
           "path": "registry/default/field-shaders/solace-field-shader.tsx",

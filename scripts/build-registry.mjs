@@ -52,12 +52,42 @@ const definitions = [
     docs:
       'Render <SolaceFieldShader variant="cellular" /> inside a container with an explicit width and height.',
   },
+  {
+    name: "repulsion-lattice",
+    title: "Repulsion Lattice",
+    description: "A luminous point field that opens and shears around pointer pressure.",
+    path: fieldPath,
+    target: "@components/solace-field-shader.tsx",
+    content: fieldSource,
+    docs:
+      'Render <SolaceFieldShader variant="repulsion" palette="ember" /> inside a container with an explicit width and height.',
+  },
+  {
+    name: "magnetic-pixels",
+    title: "Magnetic Pixels",
+    description: "Spring-tethered particles with pointer-controlled polarity and visible tension.",
+    path: fieldPath,
+    target: "@components/solace-field-shader.tsx",
+    content: fieldSource,
+    docs:
+      'Render <SolaceFieldShader variant="magnetic" /> inside a container with an explicit width and height.',
+  },
+  {
+    name: "chromatic-refraction",
+    title: "Chromatic Refraction",
+    description: "A moving glass field that separates spectral layers around the pointer.",
+    path: fieldPath,
+    target: "@components/solace-field-shader.tsx",
+    content: fieldSource,
+    docs:
+      'Render <SolaceFieldShader variant="chromatic" palette="acid" /> inside a container with an explicit width and height.',
+  },
 ];
 
 const catalog = {
   $schema: "https://ui.shadcn.com/schema/registry.json",
   name: "solace-shaders",
-  homepage: "https://www.solaceui.com",
+  homepage: "https://shaders.solaceui.com",
   items: definitions.map(({ name, title, description, path }) => ({
     name,
     type: "registry:component",
@@ -69,6 +99,7 @@ const catalog = {
 
 await mkdir(outputDirectory, { recursive: true });
 await Promise.all([
+  writeFile(resolve(root, "registry.json"), `${JSON.stringify(catalog, null, 2)}\n`),
   writeFile(resolve(outputDirectory, "registry.json"), `${JSON.stringify(catalog, null, 2)}\n`),
   ...definitions.map(({ name, title, description, path, target, content, docs }) =>
     writeFile(
