@@ -5,9 +5,11 @@ const root = process.cwd();
 const outputDirectory = resolve(root, "public/r");
 const thermalPath = "registry/default/thermal-pixel-ink/thermal-pixel-shader.tsx";
 const fieldPath = "registry/default/field-shaders/solace-field-shader.tsx";
-const [thermalSource, fieldSource] = await Promise.all([
+const etchPath = "registry/default/thermal-etch-burn/thermal-etch-burn.tsx";
+const [thermalSource, fieldSource, etchSource] = await Promise.all([
   readFile(resolve(root, thermalPath), "utf8"),
   readFile(resolve(root, fieldPath), "utf8"),
+  readFile(resolve(root, etchPath), "utf8"),
 ]);
 
 const definitions = [
@@ -81,6 +83,17 @@ const definitions = [
     content: fieldSource,
     docs:
       'Render <SolaceFieldShader variant="chromatic" palette="acid" /> inside a container with an explicit width and height.',
+  },
+  {
+    name: "thermal-etch-burn",
+    title: "Thermal Etch Burn",
+    description:
+      "A grain-heavy thermal front moving through generative topographic linework and woven fibers.",
+    path: etchPath,
+    target: "@components/thermal-etch-burn.tsx",
+    content: etchSource,
+    docs:
+      "Render <ThermalEtchBurn /> inside a container with an explicit width and height. No image or external asset is required.",
   },
 ];
 

@@ -90,6 +90,16 @@ summary:focus-visible {
   text-transform: uppercase;
 }
 
+.catalogHeader .catalogMaker a {
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.catalogHeader .catalogMaker a:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .catalogPage main { padding: 0 clamp(20px, 4vw, 64px) 80px; }
 
 .catalogHero {
@@ -103,10 +113,24 @@ summary:focus-visible {
 .catalogHero .eyebrow { grid-column: 1 / -1; color: #747873; margin-bottom: -12px; }
 .catalogHeroLink {
   width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
   text-decoration: none;
   transition: color 160ms ease;
 }
 .catalogHeroLink:hover { color: var(--ink); }
+.catalogHeroLinkIcon {
+  width: 14px;
+  height: 14px;
+  flex: 0 0 auto;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: transform 180ms ease;
+}
+.catalogHeroLink:hover .catalogHeroLinkIcon { transform: translateX(2px); }
 
 .catalogHero h1 {
   margin: 0;
@@ -155,6 +179,7 @@ summary:focus-visible {
 
 .featuredCard .shaderPreview { height: 360px; }
 .catalogCanvas { display: block; width: 100%; height: 100%; pointer-events: none; }
+.etchStage { background: #172219; }
 
 .availableBadge {
   position: absolute;
@@ -337,10 +362,35 @@ summary:focus-visible {
 .stageBottom { bottom: 12px; color: rgba(241, 243, 236, 0.88); }
 .stageBottom span { background: rgba(8, 10, 9, 0.82); padding: 7px 9px; border-radius: 4px; backdrop-filter: blur(8px); }
 
-.codePanel { margin-top: 16px; border: 1px solid var(--border); border-radius: 10px; background: var(--panel); overflow: hidden; }
-.codePanelHeader { display: flex; justify-content: space-between; align-items: center; padding: 15px 17px; border-bottom: 1px solid var(--border); }
+.codePanel { margin-top: 16px; border: 1px solid #252825; border-radius: 10px; background: #090b0a; overflow: hidden; }
+.codePanelHeader { display: flex; justify-content: space-between; align-items: center; padding: 15px 17px; border-bottom: 1px solid #232623; background: #101210; }
 .codePanel h2 { margin: 5px 0 0; font-size: 14px; letter-spacing: -0.025em; font-weight: 500; }
-.codePanel pre { margin: 0; padding: 20px; overflow: auto; color: #d9ded8; font: 11px/1.7 "SFMono-Regular", Consolas, monospace; }
+.highlightedCode {
+  position: relative;
+  overflow: hidden;
+  background: #090b0a;
+}
+.highlightedCode .shiki { background-color: #090b0a !important; }
+.highlightedCode pre {
+  margin: 0;
+  padding: 21px 22px 23px;
+  overflow: auto;
+  background-color: #090b0a !important;
+  color: #d9ded8;
+  font: 11px/1.75 "SFMono-Regular", Consolas, monospace;
+  tab-size: 2;
+}
+.highlightedCode code { font: inherit; }
+.highlightedCode .line { display: inline-block; min-width: 100%; }
+.highlightedCode.isHighlighted { animation: codeReveal 180ms ease-out both; }
+.highlightedCode ::selection { background: rgba(215, 255, 82, 0.18); }
+.highlightedCode pre::-webkit-scrollbar { width: 9px; height: 9px; }
+.highlightedCode pre::-webkit-scrollbar-thumb { border: 3px solid #090b0a; border-radius: 999px; background: #3a3e3a; }
+.highlightedCode pre::-webkit-scrollbar-corner { background: #090b0a; }
+@keyframes codeReveal {
+  from { opacity: 0.7; transform: translateY(2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 .quietButton { padding: 7px 9px; border: 0; border-radius: 5px; color: var(--muted); background: transparent; font-size: 10px; }
 .quietButton:hover { color: var(--text); background: #1c1f1d; }
 
@@ -566,10 +616,6 @@ summary:focus-visible {
 .dialkitFrame .dialkit-color-control { display: none; }
 
 .dialResetButton {
-  position: absolute;
-  top: 13px;
-  right: 13px;
-  z-index: 4;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -581,6 +627,15 @@ summary:focus-visible {
   background: transparent;
   color: #737a74;
   transition: color 150ms ease, transform 180ms ease;
+}
+
+.dialResetTooltip {
+  position: absolute;
+  top: 13px;
+  right: 13px;
+  z-index: 4;
+  width: 21px;
+  height: 21px;
 }
 
 .dialResetButton:hover {
@@ -850,6 +905,139 @@ summary:focus-visible {
   font-size: 9px;
 }
 
+.installCommand button.iconActionButton,
+.usageToggle.iconActionButton,
+.quietButton.iconActionButton {
+  width: 32px;
+  min-width: 32px;
+  height: 32px;
+  padding: 0;
+  display: inline-grid;
+  place-items: center;
+}
+
+.actionGlyph {
+  width: 17px;
+  height: 17px;
+  display: grid;
+  place-items: center;
+}
+
+.actionGlyph svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+  animation: actionGlyphIn 240ms cubic-bezier(0.2, 0.85, 0.25, 1.2);
+}
+
+.actionGlyph.isConfirmed {
+  color: currentColor;
+}
+
+.iconActionButton {
+  transition:
+    color 160ms ease,
+    background-color 160ms ease,
+    transform 160ms ease,
+    box-shadow 220ms ease;
+}
+
+.iconActionButton:hover {
+  transform: translateY(-1px);
+}
+
+.iconActionButton:active {
+  transform: translateY(0) scale(0.94);
+}
+
+.installCommand .iconActionButton.isCopied {
+  box-shadow: 0 0 0 3px rgba(216, 255, 47, 0.12);
+}
+
+.quietButton.iconActionButton {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+}
+
+.solaceTooltipTrigger {
+  display: inline-flex;
+  flex: 0 0 auto;
+}
+
+.installPanel > .solaceTooltipTrigger {
+  justify-self: start;
+}
+
+.solaceTooltip {
+  --tooltip-arrow-offset: 0px;
+  position: fixed;
+  z-index: 1000;
+  width: max-content;
+  max-width: min(230px, calc(100vw - 20px));
+  padding: 7px 9px;
+  border: 1px solid rgba(255, 255, 255, 0.76);
+  border-radius: 6px;
+  background: #f0f2ec;
+  color: #111411;
+  box-shadow:
+    0 9px 26px rgba(0, 0, 0, 0.28),
+    0 1px 2px rgba(0, 0, 0, 0.18);
+  font: 10px/1.25 Inter, ui-sans-serif, sans-serif;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.solaceTooltip[data-positioned="true"] {
+  opacity: 1;
+  animation: tooltipIn 150ms cubic-bezier(0.2, 0.82, 0.22, 1);
+}
+
+.solaceTooltip[data-side="top"] {
+  transform: translate(-50%, -100%);
+  transform-origin: calc(50% + var(--tooltip-arrow-offset)) bottom;
+}
+
+.solaceTooltip[data-side="bottom"] {
+  transform: translate(-50%, 0);
+  transform-origin: calc(50% + var(--tooltip-arrow-offset)) top;
+}
+
+.solaceTooltip::after {
+  content: "";
+  position: absolute;
+  left: calc(50% + var(--tooltip-arrow-offset));
+  width: 7px;
+  height: 7px;
+  border-right: 1px solid rgba(255, 255, 255, 0.76);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.76);
+  border-radius: 0 0 2px;
+  background: #f0f2ec;
+}
+
+.solaceTooltip[data-side="top"]::after {
+  bottom: -4px;
+  transform: translateX(-50%) rotate(45deg);
+}
+
+.solaceTooltip[data-side="bottom"]::after {
+  top: -4px;
+  transform: translateX(-50%) rotate(225deg);
+}
+
+@keyframes actionGlyphIn {
+  0% { opacity: 0; transform: scale(0.7) rotate(-7deg); }
+  58% { opacity: 1; transform: scale(1.1) rotate(1deg); }
+  100% { opacity: 1; transform: scale(1) rotate(0); }
+}
+
+@keyframes tooltipIn {
+  0% { opacity: 0; scale: 0.95; }
+  100% { opacity: 1; scale: 1; }
+}
+
 .installCommand button {
   color: var(--accent-ink);
   background: var(--accent);
@@ -889,10 +1077,13 @@ summary:focus-visible {
   .installPanel { padding: 15px; }
   .installCommand { align-items: stretch; height: auto; padding: 5px; flex-direction: column; gap: 5px; }
   .installCommand code { padding: 10px 8px; white-space: normal; overflow-wrap: anywhere; line-height: 1.5; }
-  .installCommand button { width: 100%; }
+  .installCommand .iconActionButton { width: 32px; align-self: flex-end; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   .shaderCard:where(a) { transition: none; }
+  .iconActionButton { transition: none; }
+  .actionGlyph svg { animation: none; }
+  .solaceTooltip[data-positioned="true"] { animation: none; }
 }

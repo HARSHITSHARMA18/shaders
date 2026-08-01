@@ -3,9 +3,12 @@
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { DialRoot, useDialKitController, type DialConfig } from "dialkit";
+import { HighlightedCode } from "./HighlightedCode";
 import { PaletteEditor } from "./PaletteEditor";
 import { PanelResetButton } from "./PanelResetButton";
+import { CodeActionIcon, CopyActionIcon } from "./RegistryActionIcons";
 import { SolaceLogo } from "./SolaceLogo";
+import { Tooltip } from "./Tooltip";
 import {
   FIELD_PALETTES,
   FieldShaderPalette,
@@ -238,27 +241,50 @@ export function FieldShaderLab({ variant }: { variant: FieldShaderVariant }) {
           </div>
           <div className="installCommand">
             <code>{registryCommand}</code>
-            <button type="button" onClick={() => copy("install", registryCommand)}>
-              {copied === "install" ? "Copied" : "Copy command"}
-            </button>
+            <Tooltip content={copied === "install" ? "Copied" : "Copy command"}>
+              <button
+                className={`iconActionButton${copied === "install" ? " isCopied" : ""}`}
+                type="button"
+                aria-label={copied === "install" ? "Command copied" : "Copy command"}
+                onClick={() => copy("install", registryCommand)}
+              >
+                <CopyActionIcon confirmed={copied === "install"} />
+              </button>
+            </Tooltip>
           </div>
-          <button className="usageToggle" type="button" onClick={() => setCodeOpen((open) => !open)}>
-            {codeOpen ? "Hide configured JSX" : "View configured JSX"}
-          </button>
+          <Tooltip content={codeOpen ? "Hide configured JSX" : "View configured JSX"}>
+            <button
+              className="usageToggle iconActionButton"
+              type="button"
+              aria-label={codeOpen ? "Hide configured JSX" : "View configured JSX"}
+              aria-expanded={codeOpen}
+              aria-controls="configured-jsx"
+              onClick={() => setCodeOpen((open) => !open)}
+            >
+              <CodeActionIcon />
+            </button>
+          </Tooltip>
         </section>
 
         {codeOpen ? (
-          <section className="codePanel" aria-label="Configured component snippet">
+          <section className="codePanel" id="configured-jsx" aria-label="Configured component snippet">
             <div className="codePanelHeader">
               <div>
                 <span className="eyebrow">Current DialKit values</span>
                 <h2>Ready-to-paste usage</h2>
               </div>
-              <button className="quietButton" type="button" onClick={() => copy("jsx", snippet)}>
-                {copied === "jsx" ? "Copied" : "Copy JSX"}
-              </button>
+              <Tooltip content={copied === "jsx" ? "Copied" : "Copy JSX"}>
+                <button
+                  className={`quietButton iconActionButton${copied === "jsx" ? " isCopied" : ""}`}
+                  type="button"
+                  aria-label={copied === "jsx" ? "JSX copied" : "Copy JSX"}
+                  onClick={() => copy("jsx", snippet)}
+                >
+                  <CopyActionIcon confirmed={copied === "jsx"} />
+                </button>
+              </Tooltip>
             </div>
-            <pre><code>{snippet}</code></pre>
+            <HighlightedCode code={snippet} />
           </section>
         ) : null}
       </main>

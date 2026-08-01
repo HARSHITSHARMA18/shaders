@@ -11,6 +11,7 @@ const shaderNames = [
   "repulsion-lattice",
   "magnetic-pixels",
   "chromatic-refraction",
+  "thermal-etch-burn",
 ];
 
 async function readJson(path) {
@@ -49,6 +50,7 @@ test("keeps all catalog detail routes and their shader labs", async () => {
     ["repulsion-lattice", /variant="repulsion"/],
     ["magnetic-pixels", /variant="magnetic"/],
     ["chromatic-refraction", /variant="chromatic"/],
+    ["thermal-etch-burn", /<ThermalEtchBurnLab \/>/],
   ];
 
   for (const [slug, expected] of routes) {
