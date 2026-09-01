@@ -111,26 +111,6 @@ summary:focus-visible {
 }
 
 .catalogHero .eyebrow { grid-column: 1 / -1; color: #747873; margin-bottom: -12px; }
-.catalogHeroLink {
-  width: fit-content;
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  text-decoration: none;
-  transition: color 160ms ease;
-}
-.catalogHeroLink:hover { color: var(--ink); }
-.catalogHeroLinkIcon {
-  width: 14px;
-  height: 14px;
-  flex: 0 0 auto;
-  stroke: currentColor;
-  stroke-width: 2;
-  stroke-linecap: round;
-  stroke-linejoin: round;
-  transition: transform 180ms ease;
-}
-.catalogHeroLink:hover .catalogHeroLinkIcon { transform: translateX(2px); }
 
 .catalogHero h1 {
   margin: 0;
@@ -661,6 +641,12 @@ summary:focus-visible {
   border-radius: 12px;
   background: #111311;
   box-shadow: 0 12px 34px rgba(0, 0, 0, 0.24);
+}
+
+.particleSvgTextarea::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 .paletteEditorHeading,

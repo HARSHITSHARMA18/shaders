@@ -11,6 +11,9 @@ export type PaletteStop = {
 type Props = {
   stops: PaletteStop[];
   onChange: (key: string, value: string) => void;
+  title?: string;
+  summary?: string;
+  ariaLabel?: string;
 };
 
 type Hsv = {
@@ -116,7 +119,7 @@ function HexColorInput({
   );
 }
 
-export function PaletteEditor({ stops, onChange }: Props) {
+export function PaletteEditor({ stops, onChange, title = "Palette lab", summary, ariaLabel = "Custom shader palette editor" }: Props) {
   const [activeKey, setActiveKey] = useState(stops[0]?.key ?? "");
   const activeStop = stops.find((stop) => stop.key === activeKey) ?? stops[0];
   const activeValue = activeStop?.value ?? "#000000";
@@ -132,10 +135,10 @@ export function PaletteEditor({ stops, onChange }: Props) {
   };
 
   return (
-    <section className="paletteEditor" aria-label="Custom shader palette editor">
+    <section className="paletteEditor" aria-label={ariaLabel}>
       <div className="paletteEditorHeading">
-        <span>Palette lab</span>
-        <span>{stops.length} editable stops</span>
+        <span>{title}</span>
+        <span>{summary ?? `${stops.length} editable stops`}</span>
       </div>
 
       <div className="paletteSwatchRail" role="list" aria-label="Palette color stops">

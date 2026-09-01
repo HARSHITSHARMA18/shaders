@@ -9,6 +9,11 @@ import {
 } from "./SolaceFieldShader";
 import { ThermalEtchBurn } from "./ThermalEtchBurn";
 import { ThermalPixelShader } from "./ThermalPixelShader";
+import { ParticleMorphShader, SOLACE_MARK_SVG } from "./ParticleMorphShader";
+import { RefractiveLens } from "./RefractiveLens";
+import { ExposureGrid } from "./ExposureGrid";
+import { FluidDistortion } from "./FluidDistortion";
+import { BlackholeLensing } from "./BlackholeLensing";
 
 const liveStudies: Array<{
   number: string;
@@ -99,33 +104,11 @@ export function ShaderCatalog() {
 
       <main>
         <section className="catalogHero">
-          <a
-            className="eyebrow catalogHeroLink"
-            href="https://www.solaceui.com"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Browse tastefully crafted blocks for marketing pages
-            <svg
-              className="catalogHeroLinkIcon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-            >
-              <path stroke="none" d="M0 0h24v24H0z" fill="none" />
-              <path d="M5 12h14" />
-              <path d="m15 16 4-4" />
-              <path d="m15 8 4 4" />
-            </svg>
-          </a>
+          <span className="eyebrow">Interactive WebGL studies · Ready to install</span>
           <h1>Shaders for interfaces that should feel alive.</h1>
           <p>
             Explore, tune, and copy interactive visual systems built as reusable
-            Solace UI blocks.
+            interface components.
           </p>
         </section>
 
@@ -151,6 +134,131 @@ export function ShaderCatalog() {
               <p>
                 Persistent heat, hard palette bands, and cursor-path mixing.
               </p>
+              <span className="openLabel">Open experiment →</span>
+            </div>
+          </Link>
+
+          <Link
+            className="shaderCard"
+            href="/shaders/particle-assembly"
+          >
+            <div className="shaderPreview livePreview">
+              <ParticleMorphShader
+                className="catalogCanvas"
+                preset="svg"
+                svg={SOLACE_MARK_SVG}
+                particleCount={920}
+                size={4.2}
+                interaction={0.2}
+              />
+              <span className="availableBadge">Available</span>
+            </div>
+            <div className="shaderCardBody">
+              <div>
+                <span>09</span>
+                <h2>Particle assembly</h2>
+              </div>
+              <p>Glossy particles resolve into editable wordmarks or a supplied SVG logo.</p>
+              <span className="openLabel">Open experiment →</span>
+            </div>
+          </Link>
+
+          <Link className="shaderCard" href="/shaders/refractive-lens">
+            <div className="shaderPreview livePreview">
+              <RefractiveLens
+                className="catalogCanvas"
+                src="/solaceui-renaissance.webp"
+                shape="circle"
+                mode="pointer"
+                size={0.56}
+                radius={0.74}
+                refraction={1.28}
+                magnification={0.82}
+                frost={0.04}
+                thickness={0.78}
+                dispersion={0.8}
+                follow={0.08}
+              />
+              <span className="availableBadge">Available</span>
+            </div>
+            <div className="shaderCardBody">
+              <div>
+                <span>10</span>
+                <h2>Refractive lens</h2>
+              </div>
+              <p>A shapeable optical surface that redirects focus through supplied media.</p>
+              <span className="openLabel">Open experiment →</span>
+            </div>
+          </Link>
+
+          <Link className="shaderCard" href="/shaders/fluid-distortion">
+            <div className="shaderPreview livePreview">
+              <FluidDistortion
+                className="catalogCanvas"
+                src="/fluid-distortion-hero.png"
+                composition="media"
+                current="orbit"
+                character="silk"
+                palette="flare"
+                distortion={0.56}
+                gloss={0.48}
+                swirl={0.62}
+              />
+              <span className="availableBadge">Available</span>
+            </div>
+            <div className="shaderCardBody">
+              <div>
+                <span>12</span>
+                <h2>Fluid distortion</h2>
+              </div>
+              <p>A liquid rim and color field that keeps the momentum of your pointer.</p>
+              <span className="openLabel">Open experiment →</span>
+            </div>
+          </Link>
+
+          <Link className="shaderCard" href="/shaders/exposure-grid">
+            <div className="shaderPreview livePreview">
+              <ExposureGrid
+                className="catalogCanvas"
+                src="/exposure-grid-mountain.jpg"
+                columns={4}
+                rows={4}
+                lineWidth={2.5}
+                lineOpacity={0.4}
+                activity={0.4}
+                tempo={0.96}
+                intensity={0.78}
+                zoom={0.68}
+                grain={0.68}
+                interaction={0.82}
+              />
+              <span className="availableBadge">Available</span>
+            </div>
+            <div className="shaderCardBody">
+              <div><span>11</span><h2>Exposure grid</h2></div>
+              <p>Camera-clean framing with independently shifting color and material samples.</p>
+              <span className="openLabel">Open experiment →</span>
+            </div>
+          </Link>
+
+          <Link className="shaderCard" href="/shaders/blackhole-lensing">
+            <div className="shaderPreview livePreview">
+              <BlackholeLensing
+                className="catalogCanvas"
+                mode="orbit"
+                radius={0.2}
+                lens={0.34}
+                orbit={0.9}
+                aberration={0.15}
+              />
+              <span className="availableBadge">Available</span>
+            </div>
+            <div className="shaderCardBody">
+              <div>
+                <span>13</span>
+                <h2>Black hole portal</h2>
+              </div>
+              <p>Gravitational lensing, frame dragging spin, and chromatic dispersion around an event horizon.</p>
               <span className="openLabel">Open experiment →</span>
             </div>
           </Link>
@@ -206,6 +314,7 @@ export function ShaderCatalog() {
               <span className="openLabel">Open experiment →</span>
             </div>
           </Link>
+
         </section>
       </main>
 

@@ -98,6 +98,66 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "particle-assembly",
+      "type": "registry:component",
+      "title": "Particle Assembly",
+      "description": "Glossy WebGL particles that loop between ambient scatter and an editable wordmark or supplied SVG logo.",
+      "files": [
+        {
+          "path": "registry/default/particle-morph/particle-morph-shader.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "refractive-lens",
+      "type": "registry:component",
+      "title": "Refractive Lens",
+      "description": "A shapeable interactive glass lens that refracts generated artwork, images, or video.",
+      "files": [
+        {
+          "path": "registry/default/refractive-lens/refractive-lens.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "exposure-grid",
+      "type": "registry:component",
+      "title": "Exposure Grid",
+      "description": "An editorial image or video grid with independently changing exposure, color, and texture samples.",
+      "files": [
+        {
+          "path": "registry/default/exposure-grid/exposure-grid.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "fluid-distortion",
+      "type": "registry:component",
+      "title": "Fluid Distortion",
+      "description": "A pointer-reactive 2D fluid that warps generated color forms or supplied media, including a liquid rim.",
+      "files": [
+        {
+          "path": "registry/default/fluid-distortion/fluid-distortion.tsx",
+          "type": "registry:component"
+        }
+      ]
+    },
+    {
+      "name": "blackhole-lensing",
+      "type": "registry:component",
+      "title": "Blackhole Lensing",
+      "description": "Gravitational lensing black hole portal with Einstein rings, Kerr metric frame-dragging spin, and chromatic dispersion.",
+      "files": [
+        {
+          "path": "registry/default/blackhole-lensing/blackhole-lensing.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }

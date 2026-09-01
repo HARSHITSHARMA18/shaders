@@ -6,10 +6,20 @@ const outputDirectory = resolve(root, "public/r");
 const thermalPath = "registry/default/thermal-pixel-ink/thermal-pixel-shader.tsx";
 const fieldPath = "registry/default/field-shaders/solace-field-shader.tsx";
 const etchPath = "registry/default/thermal-etch-burn/thermal-etch-burn.tsx";
-const [thermalSource, fieldSource, etchSource] = await Promise.all([
+const particlePath = "registry/default/particle-morph/particle-morph-shader.tsx";
+const lensPath = "registry/default/refractive-lens/refractive-lens.tsx";
+const exposureGridPath = "registry/default/exposure-grid/exposure-grid.tsx";
+const fluidPath = "registry/default/fluid-distortion/fluid-distortion.tsx";
+const blackholePath = "registry/default/blackhole-lensing/blackhole-lensing.tsx";
+const [thermalSource, fieldSource, etchSource, particleSource, lensSource, exposureGridSource, fluidSource, blackholeSource] = await Promise.all([
   readFile(resolve(root, thermalPath), "utf8"),
   readFile(resolve(root, fieldPath), "utf8"),
   readFile(resolve(root, etchPath), "utf8"),
+  readFile(resolve(root, particlePath), "utf8"),
+  readFile(resolve(root, lensPath), "utf8"),
+  readFile(resolve(root, exposureGridPath), "utf8"),
+  readFile(resolve(root, fluidPath), "utf8"),
+  readFile(resolve(root, blackholePath), "utf8"),
 ]);
 
 const definitions = [
@@ -94,6 +104,61 @@ const definitions = [
     content: etchSource,
     docs:
       "Render <ThermalEtchBurn /> inside a container with an explicit width and height. No image or external asset is required.",
+  },
+  {
+    name: "particle-assembly",
+    title: "Particle Assembly",
+    description:
+      "Glossy WebGL particles that loop between ambient scatter and an editable wordmark or supplied SVG logo.",
+    path: particlePath,
+    target: "@components/particle-morph-shader.tsx",
+    content: particleSource,
+    docs:
+      'Render <ParticleMorphShader preset="word" text="SOLACE" /> for text, or pass preset="svg" with a complete SVG string to assemble a custom logo.',
+  },
+  {
+    name: "refractive-lens",
+    title: "Refractive Lens",
+    description:
+      "A shapeable interactive glass lens that refracts generated artwork, images, or video.",
+    path: lensPath,
+    target: "@components/refractive-lens.tsx",
+    content: lensSource,
+    docs:
+      'Render <RefractiveLens /> for the built-in composition, or pass src="/artwork.jpg" or a video source. Use svgMask with a complete SVG string for a custom lens silhouette.',
+  },
+  {
+    name: "exposure-grid",
+    title: "Exposure Grid",
+    description:
+      "An editorial image or video grid with independently changing exposure, color, and texture samples.",
+    path: exposureGridPath,
+    target: "@components/exposure-grid.tsx",
+    content: exposureGridSource,
+    docs:
+      'Render <ExposureGrid src="/artwork.jpg" /> inside a container with explicit dimensions. Video sources are supported with mediaType="video".',
+  },
+  {
+    name: "fluid-distortion",
+    title: "Fluid Distortion",
+    description:
+      "A pointer-reactive 2D fluid that warps generated color forms or supplied media, including a liquid rim.",
+    path: fluidPath,
+    target: "@components/fluid-distortion.tsx",
+    content: fluidSource,
+    docs:
+      'Render <FluidDistortion composition="flare" /> inside a container with explicit dimensions. Pass src for image or video displacement, and current="orbit" for a self-stirring surface.',
+  },
+  {
+    name: "blackhole-lensing",
+    title: "Blackhole Lensing",
+    description:
+      "Gravitational lensing black hole portal with Einstein rings, Kerr metric frame-dragging spin, and chromatic dispersion.",
+    path: blackholePath,
+    target: "@components/blackhole-lensing.tsx",
+    content: blackholeSource,
+    docs:
+      'Render <BlackholeLensing /> inside a container with explicit dimensions. Use progress for warp transition animations.',
   },
 ];
 
