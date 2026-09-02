@@ -17,6 +17,7 @@ const shaderNames = [
   "exposure-grid",
   "fluid-distortion",
   "blackhole-lensing",
+  "specimen-index",
 ];
 
 async function readJson(path) {
@@ -61,6 +62,7 @@ test("keeps all catalog detail routes and their shader labs", async () => {
     ["exposure-grid", /<ExposureGridLab \/>/],
     ["fluid-distortion", /<FluidDistortionLab \/>/],
     ["blackhole-lensing", /<BlackholeLensingLab \/>/],
+    ["specimen-index", /<SpecimenIndexLab \/>/],
   ];
 
   for (const [slug, expected] of routes) {

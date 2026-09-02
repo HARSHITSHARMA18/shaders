@@ -158,6 +158,18 @@
           "type": "registry:component"
         }
       ]
+    },
+    {
+      "name": "specimen-index",
+      "type": "registry:component",
+      "title": "Specimen Index",
+      "description": "An image-aware optical composition with connected probes for true detail, color proof, structure, and exposure.",
+      "files": [
+        {
+          "path": "registry/default/specimen-index/specimen-index.tsx",
+          "type": "registry:component"
+        }
+      ]
     }
   ]
 }

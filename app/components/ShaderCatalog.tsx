@@ -14,6 +14,7 @@ import { RefractiveLens } from "./RefractiveLens";
 import { ExposureGrid } from "./ExposureGrid";
 import { FluidDistortion } from "./FluidDistortion";
 import { BlackholeLensing } from "./BlackholeLensing";
+import { SpecimenIndex } from "./SpecimenIndex";
 
 const liveStudies: Array<{
   number: string;
@@ -167,7 +168,7 @@ export function ShaderCatalog() {
             <div className="shaderPreview livePreview">
               <RefractiveLens
                 className="catalogCanvas"
-                src="/solaceui-renaissance.webp"
+                src="/specimen-index-flax.png"
                 shape="circle"
                 mode="pointer"
                 size={0.56}
@@ -259,6 +260,34 @@ export function ShaderCatalog() {
                 <h2>Black hole portal</h2>
               </div>
               <p>Gravitational lensing, frame dragging spin, and chromatic dispersion around an event horizon.</p>
+              <span className="openLabel">Open experiment →</span>
+            </div>
+          </Link>
+
+          <Link className="shaderCard" href="/shaders/specimen-index">
+            <div className="shaderPreview livePreview">
+              <SpecimenIndex
+                className="catalogCanvas"
+                src="/solaceui-renaissance.webp"
+                study="editorial"
+                mode="auto"
+                probes={4}
+                magnification={1.38}
+                detail={0.78}
+                connectors={0.86}
+                grain={0.18}
+                motion={0.24}
+                geometry="studio"
+                geometryAmount={0.9}
+                geometryDensity={0.78}
+                geometryScale={0.84}
+                pointerGeometry={0.96}
+              />
+              <span className="availableBadge">Available</span>
+            </div>
+            <div className="shaderCardBody">
+              <div><span>14</span><h2>Specimen index</h2></div>
+              <p>A botanical image becomes a living system of detected geometry, samples, and pointer constructions.</p>
               <span className="openLabel">Open experiment →</span>
             </div>
           </Link>

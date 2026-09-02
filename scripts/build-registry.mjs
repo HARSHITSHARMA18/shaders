@@ -11,7 +11,8 @@ const lensPath = "registry/default/refractive-lens/refractive-lens.tsx";
 const exposureGridPath = "registry/default/exposure-grid/exposure-grid.tsx";
 const fluidPath = "registry/default/fluid-distortion/fluid-distortion.tsx";
 const blackholePath = "registry/default/blackhole-lensing/blackhole-lensing.tsx";
-const [thermalSource, fieldSource, etchSource, particleSource, lensSource, exposureGridSource, fluidSource, blackholeSource] = await Promise.all([
+const specimenIndexPath = "registry/default/specimen-index/specimen-index.tsx";
+const [thermalSource, fieldSource, etchSource, particleSource, lensSource, exposureGridSource, fluidSource, blackholeSource, specimenIndexSource] = await Promise.all([
   readFile(resolve(root, thermalPath), "utf8"),
   readFile(resolve(root, fieldPath), "utf8"),
   readFile(resolve(root, etchPath), "utf8"),
@@ -20,6 +21,7 @@ const [thermalSource, fieldSource, etchSource, particleSource, lensSource, expos
   readFile(resolve(root, exposureGridPath), "utf8"),
   readFile(resolve(root, fluidPath), "utf8"),
   readFile(resolve(root, blackholePath), "utf8"),
+  readFile(resolve(root, specimenIndexPath), "utf8"),
 ]);
 
 const definitions = [
@@ -159,6 +161,17 @@ const definitions = [
     content: blackholeSource,
     docs:
       'Render <BlackholeLensing /> inside a container with explicit dimensions. Use progress for warp transition animations.',
+  },
+  {
+    name: "specimen-index",
+    title: "Specimen Index",
+    description:
+      "An image-aware optical composition with connected probes for true detail, color proof, structure, and exposure.",
+    path: specimenIndexPath,
+    target: "@components/specimen-index.tsx",
+    content: specimenIndexSource,
+    docs:
+      'Render <SpecimenIndex src="/artwork.jpg" /> inside a container with explicit dimensions. Move across the canvas to inspect the source and click to pin the primary probe.',
   },
 ];
 
