@@ -83,7 +83,33 @@ summary:focus-visible {
 
 .catalogHeader .wordmark { color: var(--ink); }
 .catalogHeader .brandSection, .catalogHeader .brandDivider { color: #666a65; }
-.catalogHeader > span {
+.catalogMeta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.githubLink {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  color: #686b67;
+  border-radius: 50%;
+  transition: color 160ms ease, background-color 160ms ease;
+}
+
+.githubLink svg {
+  width: 17px;
+  height: 17px;
+}
+
+.githubLink:hover {
+  color: var(--ink);
+  background: rgba(16, 18, 16, 0.07);
+}
+
+.catalogMaker {
   color: #686b67;
   font: 9px/1 "SFMono-Regular", Consolas, monospace;
   letter-spacing: 0.1em;
@@ -1053,7 +1079,7 @@ summary:focus-visible {
 
 @media (max-width: 720px) {
   .catalogHeader { height: 62px; }
-  .catalogHeader > span { display: none; }
+  .catalogMaker { display: none; }
   .catalogHero { grid-template-columns: 1fr; gap: 24px; padding: 64px 0 52px; }
   .catalogHero .eyebrow { margin-bottom: -2px; }
   .shaderGrid { grid-template-columns: 1fr; }

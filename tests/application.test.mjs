@@ -89,3 +89,26 @@ test("does not retain retired hosting and database infrastructure", async () => 
     await assert.rejects(access(new URL(path, root)));
   }
 });
+
+test("exposes the public repository, current catalog preview, and Vercel Analytics", async () => {
+  const [catalog, layout] = await Promise.all([
+    readFile(new URL("app/components/ShaderCatalog.tsx", root), "utf8"),
+    readFile(new URL("app/layout.tsx", root), "utf8"),
+  ]);
+
+  assert.match(
+    catalog,
+    /href="https:\/\/github\.com\/HARSHITSHARMA18\/shaders"/,
+  );
+  assert.match(catalog, /src="\/specimen-index-flax\.png"/);
+  assert.doesNotMatch(catalog, /src="\/solaceui-renaissance\.webp"/);
+  assert.match(layout, /from "@vercel\/analytics\/next"/);
+  assert.match(layout, /<Analytics \/>/);
+});
+
+test("ships with an MIT license", async () => {
+  const license = await readFile(new URL("LICENSE", root), "utf8");
+
+  assert.match(license, /^MIT License/);
+  assert.match(license, /Copyright \(c\) 2026 Harshit Sharma/);
+});

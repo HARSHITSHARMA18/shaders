@@ -14,6 +14,7 @@
     "lint": "eslint . --ignore-pattern dist --ignore-pattern .next"
   },
   "dependencies": {
+    "@vercel/analytics": "^2.0.1",
     "dialkit": "^1.4.2",
     "motion": "^12.42.2",
     "next": "16.2.12",

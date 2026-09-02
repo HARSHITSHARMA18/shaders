@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
+import { Analytics } from "@vercel/analytics/next";
 import { AgentationDev } from "./components/AgentationDev";
 import "dialkit/styles.css";
 import "./globals.css";
@@ -44,6 +45,7 @@ export default function RootLayout({
     <html lang="en">
       <body suppressHydrationWarning>
         {children}
+        <Analytics />
         <AgentationDev />
       </body>
     </html>
