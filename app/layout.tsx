@@ -14,8 +14,6 @@ export async function generateMetadata(): Promise<Metadata> {
   const title = "Shaders / Solace — Interactive Shaders for the Web";
   const description =
     "Interactive WebGL shaders for creatives building on the web. Explore effects, tune them live, and install editable React components for your own projects.";
-  const image = new URL("/og-catalog.png", origin).toString();
-
   return {
     metadataBase: new URL(origin),
     title,
@@ -29,13 +27,11 @@ export async function generateMetadata(): Promise<Metadata> {
       type: "website",
       title,
       description,
-      images: [{ url: image, width: 2400, height: 1260, alt: "A selection of interactive effects from Shaders / Solace" }],
     },
     twitter: {
       card: "summary_large_image",
       title,
       description,
-      images: [image],
     },
   };
 }

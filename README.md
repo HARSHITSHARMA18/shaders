@@ -2,7 +2,7 @@
 
 An open-source tool for creatives building on the web. Explore interactive WebGL shaders, tune them with live controls, and bring them into websites, brand experiences, portfolios, and digital products. Install editable React components through the shadcn registry and make the source your own.
 
-[![Shaders — interactive effects for the web](./public/og-catalog.png)](https://shaders.solaceui.com)
+[![Shaders — interactive effects for the web](./app/opengraph-image.png)](https://shaders.solaceui.com)
 
 **[Explore the live catalog](https://shaders.solaceui.com)**
 
