@@ -8,7 +8,7 @@ import { HighlightedCode } from "./HighlightedCode";
 import { PaletteEditor } from "./PaletteEditor";
 import { PanelResetButton } from "./PanelResetButton";
 import { CodeActionIcon, CopyActionIcon } from "./RegistryActionIcons";
-import { SolaceLogo } from "./SolaceLogo";
+import { ShadersLogo } from "./ShadersLogo";
 import { Tooltip } from "./Tooltip";
 
 const CANONICAL_ORIGIN = "https://shaders.solaceui.com";
@@ -147,7 +147,7 @@ export function ExposureGridLab() {
 
   return (
     <div className="labShell detailShell">
-      <header className="topbar"><Link className="wordmark" href="/" aria-label="Back to Solace Shaders catalog"><SolaceLogo className="solaceLogo" /><span>Solace</span><span className="brandDivider">/</span><span className="brandSection">Shaders</span></Link></header>
+      <header className="topbar"><Link className="wordmark" href="/" aria-label="Back to Shaders by Solace catalog"><ShadersLogo className="solaceLogo" /><span>Shaders</span><span className="brandDivider">/</span><span className="brandSection">Solace</span></Link></header>
       <main className="workspace detailWorkspace" id="top">
         <section className="experiment">
           <div className="experimentHeading"><div><Link className="backLink" href="/">← All shaders</Link><div className="eyebrow">Experiment 011 / Editorial media</div><h1>Exposure grid</h1></div><p>A camera-clean media grid where selected frames become alternate exposures, color samples, or tactile material.</p></div>

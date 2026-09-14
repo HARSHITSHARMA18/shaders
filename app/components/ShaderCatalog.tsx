@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { SolaceLogo } from "./SolaceLogo";
+import { ShadersLogo } from "./ShadersLogo";
 import {
   FieldShaderPalette,
   FieldShaderVariant,
@@ -89,11 +90,11 @@ export function ShaderCatalog() {
   return (
     <div className="catalogPage">
       <header className="catalogHeader">
-        <Link className="wordmark" href="/" aria-label="Solace Shaders home">
-          <SolaceLogo className="solaceLogo" />
-          <span>Solace</span>
+        <Link className="wordmark" href="/" aria-label="Shaders by Solace home">
+          <ShadersLogo className="solaceLogo" />
+          <span>Shaders</span>
           <span className="brandDivider">/</span>
-          <span className="brandSection">Shaders</span>
+          <span className="brandSection">Solace</span>
         </Link>
         <div className="catalogMeta">
           <a
@@ -184,8 +185,9 @@ export function ShaderCatalog() {
           <Link className="shaderCard" href="/shaders/refractive-lens">
             <div className="shaderPreview livePreview">
               <RefractiveLens
-                className="catalogCanvas"
-                src="/specimen-index-flax.png"
+                className="catalogCanvas catalogLensCanvas"
+                src="/solaceui-renaissance.webp"
+                palette="spectral"
                 shape="circle"
                 mode="pointer"
                 size={0.56}

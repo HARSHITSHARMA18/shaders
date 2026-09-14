@@ -7,7 +7,7 @@ import { HighlightedCode } from "./HighlightedCode";
 import { PaletteEditor } from "./PaletteEditor";
 import { PanelResetButton } from "./PanelResetButton";
 import { CodeActionIcon, CopyActionIcon } from "./RegistryActionIcons";
-import { SolaceLogo } from "./SolaceLogo";
+import { ShadersLogo } from "./ShadersLogo";
 import { SpecimenIndex, type SpecimenIndexColors, type SpecimenIndexSettings } from "./SpecimenIndex";
 import { Tooltip } from "./Tooltip";
 
@@ -199,9 +199,9 @@ export function SpecimenIndexLab() {
   return (
     <div className="labShell detailShell">
       <header className="topbar">
-        <Link className="wordmark" href="/" aria-label="Back to Solace Shaders catalog">
-          <SolaceLogo className="solaceLogo" />
-          <span>Solace</span><span className="brandDivider">/</span><span className="brandSection">Shaders</span>
+        <Link className="wordmark" href="/" aria-label="Back to Shaders by Solace catalog">
+          <ShadersLogo className="solaceLogo" />
+          <span>Shaders</span><span className="brandDivider">/</span><span className="brandSection">Solace</span>
         </Link>
       </header>
       <main className="workspace detailWorkspace" id="top">

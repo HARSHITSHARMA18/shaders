@@ -101,7 +101,7 @@ test("exposes the public repository, current catalog preview, and Vercel Analyti
     /href="https:\/\/github\.com\/HARSHITSHARMA18\/shaders"/,
   );
   assert.match(catalog, /src="\/specimen-index-flax\.png"/);
-  assert.doesNotMatch(catalog, /src="\/solaceui-renaissance\.webp"/);
+  assert.match(catalog, /src="\/solaceui-renaissance\.webp"/);
   assert.match(layout, /from "@vercel\/analytics\/next"/);
   assert.match(layout, /<Analytics \/>/);
 });

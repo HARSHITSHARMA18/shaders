@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
     requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
   const protocol = requestHeaders.get("x-forwarded-proto") ?? "https";
   const origin = host ? `${protocol}://${host}` : "http://localhost:3000";
-  const title = "Solace Shaders - Interactive Material Catalog";
+  const title = "Shaders / Solace - Interactive Material Catalog";
   const description =
     "Explore, tune, and copy interactive shader systems for Solace UI.";
   const image = new URL("/og-catalog.png", origin).toString();
@@ -27,7 +27,7 @@ export async function generateMetadata(): Promise<Metadata> {
     openGraph: {
       title,
       description,
-      images: [{ url: image, width: 1200, height: 630 }],
+      images: [{ url: image, width: 2400, height: 1260 }],
     },
     twitter: {
       card: "summary_large_image",
