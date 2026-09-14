@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { FieldShaderLab } from "../../components/FieldShaderLab";
 
 export const metadata: Metadata = {
-  title: "Magnetic Pixels - Solace Shaders",
+  title: "Magnetic Pixels - Shaders / Solace",
   description: "Tune and install a spring-tethered magnetic pixel shader.",
 };
 

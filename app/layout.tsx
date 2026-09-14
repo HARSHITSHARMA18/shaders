@@ -11,9 +11,9 @@ export async function generateMetadata(): Promise<Metadata> {
     requestHeaders.get("x-forwarded-host") ?? requestHeaders.get("host");
   const protocol = requestHeaders.get("x-forwarded-proto") ?? "https";
   const origin = host ? `${protocol}://${host}` : "http://localhost:3000";
-  const title = "Shaders / Solace - Interactive Material Catalog";
+  const title = "Shaders / Solace — Interactive Shaders for the Web";
   const description =
-    "Explore, tune, and copy interactive shader systems for Solace UI.";
+    "Interactive WebGL shaders for creatives building on the web. Explore effects, tune them live, and install editable React components for your own projects.";
   const image = new URL("/og-catalog.png", origin).toString();
 
   return {
@@ -25,9 +25,11 @@ export async function generateMetadata(): Promise<Metadata> {
       shortcut: "/favicon.svg",
     },
     openGraph: {
+      siteName: "Shaders / Solace",
+      type: "website",
       title,
       description,
-      images: [{ url: image, width: 2400, height: 1260 }],
+      images: [{ url: image, width: 2400, height: 1260, alt: "A selection of interactive effects from Shaders / Solace" }],
     },
     twitter: {
       card: "summary_large_image",

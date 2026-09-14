@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { FieldShaderLab } from "../../components/FieldShaderLab";
 
 export const metadata: Metadata = {
-  title: "Chromatic Refraction - Solace Shaders",
+  title: "Chromatic Refraction - Shaders / Solace",
   description: "Tune and install a pointer-reactive chromatic refraction shader.",
 };
 

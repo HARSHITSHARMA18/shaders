@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { FieldShaderLab } from "../../components/FieldShaderLab";
 
 export const metadata: Metadata = {
-  title: "Reaction Bloom — Solace Shaders",
+  title: "Reaction Bloom — Shaders / Solace",
   description: "Tune and install a pointer-seeded reaction bloom shader.",
 };
 

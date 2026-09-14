@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { ThermalEtchBurnLab } from "../../components/ThermalEtchBurnLab";
 
 export const metadata: Metadata = {
-  title: "Thermal Etch Burn - Solace Shaders",
+  title: "Thermal Etch Burn - Shaders / Solace",
   description: "Tune and install a grain-heavy procedural thermal burn shader.",
 };
 

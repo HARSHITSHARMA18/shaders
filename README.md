@@ -1,18 +1,18 @@
-# Solace Shaders
+# Shaders / Solace
 
-An open catalog of interactive WebGL experiments for [Solace UI](https://www.solaceui.com). Explore each effect in the browser, tune it with live controls, and install the component source through the shadcn registry.
+An open-source tool for creatives building on the web. Explore interactive WebGL shaders, tune them with live controls, and bring them into websites, brand experiences, portfolios, and digital products. Install editable React components through the shadcn registry and make the source your own.
 
-[![Solace Shaders catalog preview](./public/og-catalog.png)](https://shaders.solaceui.com)
+[![Shaders — interactive effects for the web](./public/og-catalog.png)](https://shaders.solaceui.com)
 
 **[Explore the live catalog](https://shaders.solaceui.com)**
 
 ## What is inside
 
-- 14 interactive shader studies, from thermal ink and fluid distortion to particle assembly and gravitational lensing
+- 14 interactive shaders, from thermal ink and fluid distortion to particle assembly and gravitational lensing
 - Live parameter controls powered by [DialKit](https://github.com/joshpuckett/dialkit)
 - Reusable React components with shader source included
 - A shadcn-compatible registry generated from the project metadata
-- Responsive catalog and experiment pages built with the Next.js App Router
+- Responsive catalog and shader editors built with the Next.js App Router
 
 ## Tech stack
 
@@ -38,7 +38,7 @@ Open [http://localhost:3000](http://localhost:3000) to view the catalog.
 
 ## Installing a shader
 
-Every available experiment includes an installation command. For example:
+Every shader includes an installation command. For example:
 
 ```bash
 npx shadcn@latest add https://shaders.solaceui.com/r/thermal-pixel-ink.json
@@ -98,8 +98,8 @@ External contributions are not open yet. Issues and pull requests will be welcom
 
 ## License
 
-Solace Shaders is available under the [MIT License](./LICENSE).
+Shaders is available under the [MIT License](./LICENSE).
 
 ## Acknowledgements
 
-Created by [Harshit Sharma](https://github.com/HARSHITSHARMA18) for [Solace UI](https://www.solaceui.com).
+Created by [Harshit Sharma](https://github.com/HARSHITSHARMA18), the creator of [Solace UI](https://www.solaceui.com). Shaders is a standalone tool you can use in your own web projects.

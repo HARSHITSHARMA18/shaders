@@ -102,7 +102,7 @@ export function ShaderCatalog() {
             href="https://github.com/HARSHITSHARMA18/shaders"
             target="_blank"
             rel="noreferrer"
-            aria-label="View Solace Shaders on GitHub"
+            aria-label="View Shaders on GitHub"
             title="View source on GitHub"
           >
             <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -123,11 +123,11 @@ export function ShaderCatalog() {
 
       <main>
         <section className="catalogHero">
-          <span className="eyebrow">Interactive WebGL studies · Ready to install</span>
-          <h1>Shaders for interfaces that should feel alive.</h1>
+          <span className="eyebrow">Interactive WebGL shaders · Ready to make your own</span>
+          <h1>Shaders for a more expressive web.</h1>
           <p>
-            Explore, tune, and copy interactive visual systems built as reusable
-            interface components.
+            A creative tool for building on the web. Explore effects, tune them live,
+            and bring them into your websites, brand experiences, and digital products.
           </p>
         </section>
 
@@ -153,7 +153,7 @@ export function ShaderCatalog() {
               <p>
                 Persistent heat, hard palette bands, and cursor-path mixing.
               </p>
-              <span className="openLabel">Open experiment →</span>
+              <span className="openLabel">Explore shader →</span>
             </div>
           </Link>
 
@@ -178,7 +178,7 @@ export function ShaderCatalog() {
                 <h2>Particle assembly</h2>
               </div>
               <p>Glossy particles resolve into editable wordmarks or a supplied SVG logo.</p>
-              <span className="openLabel">Open experiment →</span>
+              <span className="openLabel">Explore shader →</span>
             </div>
           </Link>
 
@@ -207,7 +207,7 @@ export function ShaderCatalog() {
                 <h2>Refractive lens</h2>
               </div>
               <p>A shapeable optical surface that redirects focus through supplied media.</p>
-              <span className="openLabel">Open experiment →</span>
+              <span className="openLabel">Explore shader →</span>
             </div>
           </Link>
 
@@ -232,7 +232,7 @@ export function ShaderCatalog() {
                 <h2>Fluid distortion</h2>
               </div>
               <p>A liquid rim and color field that keeps the momentum of your pointer.</p>
-              <span className="openLabel">Open experiment →</span>
+              <span className="openLabel">Explore shader →</span>
             </div>
           </Link>
 
@@ -257,7 +257,7 @@ export function ShaderCatalog() {
             <div className="shaderCardBody">
               <div><span>11</span><h2>Exposure grid</h2></div>
               <p>Camera-clean framing with independently shifting color and material samples.</p>
-              <span className="openLabel">Open experiment →</span>
+              <span className="openLabel">Explore shader →</span>
             </div>
           </Link>
 
@@ -279,7 +279,7 @@ export function ShaderCatalog() {
                 <h2>Black hole portal</h2>
               </div>
               <p>Gravitational lensing, frame dragging spin, and chromatic dispersion around an event horizon.</p>
-              <span className="openLabel">Open experiment →</span>
+              <span className="openLabel">Explore shader →</span>
             </div>
           </Link>
 
@@ -307,7 +307,7 @@ export function ShaderCatalog() {
             <div className="shaderCardBody">
               <div><span>14</span><h2>Specimen index</h2></div>
               <p>A botanical image becomes a living system of detected geometry, samples, and pointer constructions.</p>
-              <span className="openLabel">Open experiment →</span>
+              <span className="openLabel">Explore shader →</span>
             </div>
           </Link>
 
@@ -336,7 +336,7 @@ export function ShaderCatalog() {
                   <h2>{study.title}</h2>
                 </div>
                 <p>{study.copy}</p>
-                <span className="openLabel">Open experiment →</span>
+                <span className="openLabel">Explore shader →</span>
               </div>
             </Link>
           ))}
@@ -359,7 +359,7 @@ export function ShaderCatalog() {
                 <h2>Thermal etch burn</h2>
               </div>
               <p>A volatile thermal front moves through generative etched linework.</p>
-              <span className="openLabel">Open experiment →</span>
+              <span className="openLabel">Explore shader →</span>
             </div>
           </Link>
 
