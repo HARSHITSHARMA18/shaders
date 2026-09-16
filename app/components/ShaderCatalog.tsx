@@ -97,6 +97,7 @@ export function ShaderCatalog() {
           <span className="brandSection">Solace</span>
         </Link>
         <div className="catalogMeta">
+          <Link href="/brand-lab" style={{ color: "var(--ink)", fontSize: 12, textDecoration: "none" }}>Brand Lab ↗</Link>
           <a
             className="githubLink"
             href="https://github.com/HARSHITSHARMA18/shaders"
