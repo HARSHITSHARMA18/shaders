@@ -64,6 +64,12 @@ Future variety still follows the handoff's curated Scene model: different compos
 
 Validation: production build/TypeScript, scoped ESLint, and production interaction/resilience browser checks passed. Reviewed captures at 1745 × 828 and 390 × 844. Browser checks now bring the study into view before waiting for material readiness, respecting the existing offscreen preview pause; keyboard placement selection, focus return, Escape dismissal, and absence of native tooltip/Accent options are asserted. No renderer implementation was changed in this refinement.
 
+## Second review refinement — dialog and asset-local controls
+
+Added the desktop material sidebar's left border and balanced its inset. The brand dialog explicitly sets fixed insets and automatic margins (the global reset removes the native dialog margins), centers on desktop, bounds its height with internal scrolling, and becomes a full-height mobile sheet. Its accessible name points to the heading. Placement/strength moved from the canvas footer to a small asset-anchored floating region, clamped to the viewport and repositioned on scrolling/resizing; mobile uses a bottom treatment card. The card hides when the selected asset leaves the viewport, remembers the selection, and closes with Escape or its close button, restoring focus to the asset. No rendering or durable-state architecture changed.
+
+Validation: production build/TypeScript, scoped ESLint, visual inspection at 1745 × 828 / 390 × 844, and final production browser checks passed. Checks assert centered/bounded desktop dialog, full-height mobile dialog, visible asset-local controls within the viewport, removal of footer controls, and the existing interactions/resilience checks. Some earlier headless runs timed out returning from Original to Thermal; a final production rerun passed. Cold shader preparation still warrants performance follow-up before expansion. Readiness failures now emit diagnostic state and a screenshot, rather than only a timeout.
+
 ## Review questions before expansion
 
 Judge the overall Campaign composition, the default identity/media choice, the balance of shader material and untouched photography, and whether sharing one treatment through cropped/masked roles provides enough creative range. Approve or refine that direction before adding another Scene or any export/setup infrastructure.

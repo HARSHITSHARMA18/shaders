@@ -18,6 +18,8 @@ export function CampaignScene({ brand, shaderId, selected, treatments, sceneRef,
   const selection = (id: string) => ({
     role: "button" as const, tabIndex: 0, "aria-label": `Select ${SURFACES.find(surface => surface.id === id)?.label}`,
     "aria-pressed": selected === id, "data-selected": selected === id,
+    "data-surface-id": id,
+    "aria-controls": selected === id ? "bl-surface-controls" : undefined,
     "data-placement": treatments[id].placement, style: style(id),
     onClick: () => onSelect(id),
     onKeyDown: (event: React.KeyboardEvent) => { if (event.key === "Enter" || event.key === " ") { event.preventDefault(); onSelect(id); } },

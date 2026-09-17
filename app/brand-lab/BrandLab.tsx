@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { ShadersLogo } from "../components/ShadersLogo";
 import { CampaignScene } from "./CampaignScene";
 import { ShaderMaterial } from "./ShaderMaterial";
-import { PlacementPicker } from "./PlacementPicker";
+import { SurfaceControls } from "./SurfaceControls";
 import { DEFAULT_BRAND, MEDIA_SHADERS, SURFACES, supportsBrandPalette, type Brand, type ShaderEntry, type Treatment } from "./model";
 
 function decodeUpload(url: string, kind: "image" | "video"): Promise<void> {
@@ -86,17 +86,15 @@ export function BrandLab({ shaders }: { shaders: ShaderEntry[] }) {
           <div className="bl-canvas-toolbar"><span className="bl-scene-label">Campaign <span>01</span></span><span className="bl-shader-label"><i />{active?.title ?? "Original / No shader"}</span><button className="bl-reset" onClick={() => { setSelected(null); selectShader(null); }}>View original ↗</button></div>
           <CampaignScene brand={brand} shaderId={shaderId} selected={selected} treatments={treatments} sceneRef={sceneRef} onSelect={setSelected} />
           <ShaderMaterial id={shaderId} brand={brand} palette={paletteSupported ? palette : "Original"} sceneRef={sceneRef} onStatus={setStatus} />
-          <div className="bl-context" data-open={Boolean(surface)}>
-            {surface ? <><span className="bl-context-title">{surface.label}</span><PlacementPicker key={surface.id} value={treatments[surface.id].placement} modes={surface.modes} onChange={placement => changeTreatment({ placement })} /><label className="bl-strength">Strength<input aria-label="Material strength" type="range" min="0" max="100" value={treatments[surface.id].intensity} disabled={!shaderId} onChange={event => changeTreatment({ intensity: Number(event.target.value) })} /><output>{treatments[surface.id].intensity}%</output></label><button aria-label="Close surface controls" onClick={() => setSelected(null)}>×</button></> : <span>Select a surface to shape the material.</span>}
-          </div>
+          {surface && <SurfaceControls key={surface.id} surface={surface} treatment={treatments[surface.id]} enabled={Boolean(shaderId)} sceneRef={sceneRef} onChange={changeTreatment} onClose={() => setSelected(null)} />}
           <div className="bl-material-note" role="status">{status || (shaderId && !MEDIA_SHADERS.has(shaderId) ? "Generated material; your photograph stays original." : shaderId === "thermal-etch-burn" && brand.mediaType === "video" ? "Thermal Etch uses generated material with video. Choose an image to etch your media." : "")}</div>
         </section>
       </div>
       <footer className="bl-footer"><span>From experiment to expression.</span>{shaderId ? <Link href={`/shaders/${shaderId}`}>Explore {active?.title.toLowerCase()} ↗</Link> : <Link href="/">Explore the shader collection ↗</Link>}</footer>
     </main>
-    <dialog className="bl-brand-dialog" ref={dialogRef}>
+    <dialog className="bl-brand-dialog" ref={dialogRef} aria-labelledby="bl-brand-title">
       <div className="bl-dialog-top"><span className="bl-kicker">A LIGHTWEIGHT IDENTITY</span><button aria-label="Close brand controls" onClick={() => dialogRef.current?.close()}>×</button></div>
-      <h2>Make it yours.</h2><p>Just enough to see your brand in a new light.</p>
+      <h2 id="bl-brand-title">Make it yours.</h2><p>Just enough to see your brand in a new light.</p>
       <label>Brand name<input autoFocus value={brand.name} maxLength={24} onChange={event => setBrand(current => ({ ...current, name: event.target.value }))} /></label>
       <label>Campaign line<input value={brand.tagline} maxLength={70} onChange={event => setBrand(current => ({ ...current, tagline: event.target.value }))} /></label>
       <div className="bl-colors"><label>Primary<input type="color" value={brand.primary} onChange={event => setBrand(current => ({ ...current, primary: event.target.value }))} /><span>{brand.primary.toUpperCase()}</span></label><label>Secondary<input type="color" value={brand.secondary} onChange={event => setBrand(current => ({ ...current, secondary: event.target.value }))} /><span>{brand.secondary.toUpperCase()}</span></label></div>

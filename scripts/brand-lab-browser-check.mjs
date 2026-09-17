@@ -30,7 +30,13 @@ const ready = async () => {
   // Named sidebar rows may sit below the Scene at small viewports. A live
   // preview deliberately pauses offscreen; inspect it in view before waiting.
   await page.locator(".bl-study").scrollIntoViewIfNeeded();
-  await page.locator('canvas[data-material="study"][data-ready="true"]').waitFor({ timeout: 15000 });
+  try {
+    await page.locator('canvas[data-material="study"][data-ready="true"]').waitFor({ timeout: 15000 });
+  } catch (error) {
+    await page.screenshot({ path: path.join(output, "readiness-failure.png"), fullPage: true });
+    console.log(JSON.stringify(await page.evaluate(() => ({ status: document.querySelector(".bl-material-note")?.textContent, selected: document.querySelector('.bl-shader-tile[aria-pressed="true"]')?.getAttribute("aria-label"), source: document.querySelectorAll(".bl-source canvas").length, scrollY, scene: document.querySelector(".bl-scene")?.getBoundingClientRect().toJSON(), frames: [...document.querySelectorAll("canvas[data-material]")].map(c => ({ role: c.dataset.material, ready: c.dataset.ready, frame: c.dataset.frame })) }))), errors, messages);
+    throw error;
+  }
 };
 const pixels = () => page.locator('canvas[data-material="study"]').evaluate(canvas => {
   const data = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height).data;
@@ -80,6 +86,11 @@ try {
   await page.getByRole("button", { name: "Thermal Pixel Ink", exact: true }).click();
   await ready();
   await page.getByRole("button", { name: "Select Campaign poster", exact: true }).press("Enter");
+  const treatmentCard = page.getByRole("region", { name: "Campaign poster controls", exact: true });
+  await treatmentCard.waitFor();
+  const treatmentRect = await treatmentCard.boundingBox();
+  assert.ok(treatmentRect.y >= 0 && treatmentRect.y + treatmentRect.height <= 1000, "Asset controls stay in the viewport");
+  assert.equal(await page.locator(".bl-context").count(), 0, "No controls at the end of the canvas");
   assert.equal(await page.locator('.bl-shader-tile[title]').count(), 0, "No duplicate native hover tooltips");
   await page.getByRole("button", { name: "Placement: Background", exact: true }).press("ArrowDown");
   await page.getByRole("option", { name: /Background/ }).press("ArrowDown");
@@ -95,6 +106,9 @@ try {
   await page.getByRole("button", { name: "Close surface controls" }).click();
   await page.getByRole("button", { name: "Use your brand ↗" }).click();
   assert.equal(await page.locator("dialog").evaluate(dialog => dialog.open), true);
+  const brandDialogRect = await page.locator("dialog").boundingBox();
+  assert.ok(Math.abs(brandDialogRect.x + brandDialogRect.width / 2 - 720) < 2, "Brand dialog is horizontally centered");
+  assert.ok(brandDialogRect.y >= 0 && brandDialogRect.y + brandDialogRect.height <= 1000, "Brand dialog fits the viewport");
   const liveSource = await page.locator(".bl-source canvas").elementHandle();
   await page.getByLabel("Brand name", { exact: true }).fill("COMMON");
   await page.getByLabel("Campaign line", { exact: true }).fill("Room for another perspective.");
@@ -156,6 +170,14 @@ try {
   await ready();
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, "Mobile must not overflow horizontally");
   await page.screenshot({ path: path.join(output, "campaign-mobile.png"), fullPage: true });
+  await page.getByRole("button", { name: "Select Material study", exact: true }).click();
+  const mobileControls = await page.getByRole("region", { name: "Material study controls", exact: true }).boundingBox();
+  assert.ok(mobileControls.x >= 0 && mobileControls.x + mobileControls.width <= 390 && mobileControls.y + mobileControls.height <= 844, "Mobile treatment card fits onscreen");
+  await page.getByRole("button", { name: "Close surface controls" }).click();
+  await page.getByRole("button", { name: "Use your brand ↗" }).click();
+  const mobileDialog = await page.locator("dialog").boundingBox();
+  assert.ok(Math.abs(mobileDialog.height - 844) < 2 && mobileDialog.x === 0 && mobileDialog.y === 0, "Mobile brand dialog fills the viewport");
+  await page.getByRole("button", { name: "Close brand controls" }).click();
   await page.setViewportSize({ width: 1024, height: 900 });
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, "Tablet must not overflow horizontally");
   // More switches than Chrome's usual context limit; detached preview contexts
