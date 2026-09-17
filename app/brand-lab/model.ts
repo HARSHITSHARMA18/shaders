@@ -1,5 +1,5 @@
 export type ShaderEntry = { id: string; title: string };
-export type Placement = "Background" | "Media" | "Mask" | "Accent";
+export type Placement = "Background" | "Media" | "Mask";
 export type Brand = {
   name: string;
   tagline: string;
@@ -20,8 +20,8 @@ export const DEFAULT_BRAND: Brand = {
 };
 
 export const SURFACES = [
-  { id: "poster", label: "Campaign poster", width: 1080, height: 1350, modes: ["Background", "Mask", "Accent"] },
-  { id: "study", label: "Material study", width: 1080, height: 1080, modes: ["Media", "Mask", "Accent"] },
+  { id: "poster", label: "Campaign poster", width: 1080, height: 1350, modes: ["Background", "Mask"] },
+  { id: "study", label: "Material study", width: 1080, height: 1080, modes: ["Media", "Mask"] },
   { id: "wordmark", label: "Identity strip", width: 1600, height: 600, modes: ["Mask", "Background"] },
 ] as const;
 

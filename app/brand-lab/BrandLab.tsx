@@ -6,7 +6,8 @@ import { useEffect, useRef, useState } from "react";
 import { ShadersLogo } from "../components/ShadersLogo";
 import { CampaignScene } from "./CampaignScene";
 import { ShaderMaterial } from "./ShaderMaterial";
-import { DEFAULT_BRAND, MEDIA_SHADERS, SURFACES, supportsBrandPalette, type Brand, type Placement, type ShaderEntry, type Treatment } from "./model";
+import { PlacementPicker } from "./PlacementPicker";
+import { DEFAULT_BRAND, MEDIA_SHADERS, SURFACES, supportsBrandPalette, type Brand, type ShaderEntry, type Treatment } from "./model";
 
 function decodeUpload(url: string, kind: "image" | "video"): Promise<void> {
   return new Promise((resolve, reject) => {
@@ -29,7 +30,6 @@ export function BrandLab({ shaders }: { shaders: ShaderEntry[] }) {
   const [status, setStatus] = useState("");
   const [uploadError, setUploadError] = useState("");
   const [uploading, setUploading] = useState(false);
-  const [hovered, setHovered] = useState<string | null>(null);
   const sceneRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
   const urlsRef = useRef(new Set<string>());
@@ -73,22 +73,21 @@ export function BrandLab({ shaders }: { shaders: ShaderEntry[] }) {
       </div>
       <div className="bl-workspace">
         <aside className="bl-shader-rail" aria-label="Choose a shader">
-          <span className="bl-rail-label">MATERIALS</span>
+          <div className="bl-rail-heading"><span className="bl-rail-label">MATERIAL LIBRARY</span><span>{String(shaders.length).padStart(2, "0")}</span></div>
           <div className="bl-tile-grid">
-            <button className="bl-shader-tile bl-original" aria-label="Original / No shader" aria-pressed={shaderId === null} onClick={() => selectShader(null)} onMouseEnter={() => setHovered("Original")} onMouseLeave={() => setHovered(null)}><span>Ø</span><small>Original</small></button>
-            {shaders.map(shader => <button key={shader.id} className="bl-shader-tile" aria-label={shader.title} aria-pressed={shaderId === shader.id} title={shader.title} onClick={() => selectShader(shader.id)} onMouseEnter={() => setHovered(shader.title)} onMouseLeave={() => setHovered(null)} onFocus={() => setHovered(shader.title)} onBlur={() => setHovered(null)}>
-              <NextImage src={`/brand-lab/previews/${shader.id}.png`} alt="" width={52} height={52} unoptimized onError={event => { event.currentTarget.style.visibility = "hidden"; }} /><span className="bl-tile-fallback">{String(shaders.indexOf(shader) + 1).padStart(2, "0")}</span><span className="bl-tile-name">{shader.title}</span>
+            <button className="bl-shader-tile bl-original" aria-label="Original / No shader" aria-pressed={shaderId === null} onClick={() => selectShader(null)}><span className="bl-thumb bl-original-symbol">Ø</span><span className="bl-row-name">Original<small>No treatment</small></span><span className="bl-row-indicator" aria-hidden="true">{shaderId === null ? "●" : ""}</span></button>
+            {shaders.map(shader => <button key={shader.id} className="bl-shader-tile" aria-label={shader.title} aria-pressed={shaderId === shader.id} onClick={() => selectShader(shader.id)}>
+              <span className="bl-thumb"><NextImage src={`/brand-lab/previews/${shader.id}.png`} alt="" width={52} height={52} unoptimized onError={event => { event.currentTarget.style.visibility = "hidden"; }} /><span className="bl-tile-fallback">{String(shaders.indexOf(shader) + 1).padStart(2, "0")}</span></span><span className="bl-row-name">{shader.title}</span><span className="bl-row-indicator" aria-hidden="true">{shaderId === shader.id ? "●" : ""}</span><span className="bl-tile-name">{shader.title}</span>
             </button>)}
           </div>
-          <div className="bl-rail-current" aria-hidden="true">{hovered ?? active?.title ?? "Original"}</div>
-          <span className="bl-rail-count">{shaders.length} shaders<br />One shared identity.</span>
+          <span className="bl-rail-count">One material.<br />A different expression.</span>
         </aside>
         <section className="bl-canvas-area" aria-label="Campaign canvas">
           <div className="bl-canvas-toolbar"><span className="bl-scene-label">Campaign <span>01</span></span><span className="bl-shader-label"><i />{active?.title ?? "Original / No shader"}</span><button className="bl-reset" onClick={() => { setSelected(null); selectShader(null); }}>View original ↗</button></div>
           <CampaignScene brand={brand} shaderId={shaderId} selected={selected} treatments={treatments} sceneRef={sceneRef} onSelect={setSelected} />
           <ShaderMaterial id={shaderId} brand={brand} palette={paletteSupported ? palette : "Original"} sceneRef={sceneRef} onStatus={setStatus} />
           <div className="bl-context" data-open={Boolean(surface)}>
-            {surface ? <><span className="bl-context-title">{surface.label}</span><label>Placement<select aria-label="Placement" value={treatments[surface.id].placement} onChange={event => changeTreatment({ placement: event.target.value as Placement })}>{surface.modes.map(mode => <option key={mode}>{mode}</option>)}</select></label><label className="bl-strength">Strength<input aria-label="Material strength" type="range" min="0" max="100" value={treatments[surface.id].intensity} disabled={!shaderId} onChange={event => changeTreatment({ intensity: Number(event.target.value) })} /><output>{treatments[surface.id].intensity}%</output></label><button aria-label="Close surface controls" onClick={() => setSelected(null)}>×</button></> : <span>Select a surface to shape the material.</span>}
+            {surface ? <><span className="bl-context-title">{surface.label}</span><PlacementPicker key={surface.id} value={treatments[surface.id].placement} modes={surface.modes} onChange={placement => changeTreatment({ placement })} /><label className="bl-strength">Strength<input aria-label="Material strength" type="range" min="0" max="100" value={treatments[surface.id].intensity} disabled={!shaderId} onChange={event => changeTreatment({ intensity: Number(event.target.value) })} /><output>{treatments[surface.id].intensity}%</output></label><button aria-label="Close surface controls" onClick={() => setSelected(null)}>×</button></> : <span>Select a surface to shape the material.</span>}
           </div>
           <div className="bl-material-note" role="status">{status || (shaderId && !MEDIA_SHADERS.has(shaderId) ? "Generated material; your photograph stays original." : shaderId === "thermal-etch-burn" && brand.mediaType === "video" ? "Thermal Etch uses generated material with video. Choose an image to etch your media." : "")}</div>
         </section>

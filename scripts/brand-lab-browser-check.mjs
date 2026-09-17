@@ -26,7 +26,12 @@ page.on("pageerror", error => errors.push(error.message));
 page.on("console", message => { if (message.type() === "error" && !message.text().includes("404")) messages.push(message.text()); });
 page.on("console", message => { if (message.type() === "warning") warnings.push(message.text()); });
 const results = [];
-const ready = () => page.locator('canvas[data-material="study"][data-ready="true"]').waitFor({ timeout: 15000 });
+const ready = async () => {
+  // Named sidebar rows may sit below the Scene at small viewports. A live
+  // preview deliberately pauses offscreen; inspect it in view before waiting.
+  await page.locator(".bl-study").scrollIntoViewIfNeeded();
+  await page.locator('canvas[data-material="study"][data-ready="true"]').waitFor({ timeout: 15000 });
+};
 const pixels = () => page.locator('canvas[data-material="study"]').evaluate(canvas => {
   const data = canvas.getContext("2d").getImageData(0, 0, canvas.width, canvas.height).data;
   const colors = new Set();
@@ -75,7 +80,15 @@ try {
   await page.getByRole("button", { name: "Thermal Pixel Ink", exact: true }).click();
   await ready();
   await page.getByRole("button", { name: "Select Campaign poster", exact: true }).press("Enter");
-  await page.getByLabel("Placement", { exact: true }).selectOption("Mask");
+  assert.equal(await page.locator('.bl-shader-tile[title]').count(), 0, "No duplicate native hover tooltips");
+  await page.getByRole("button", { name: "Placement: Background", exact: true }).press("ArrowDown");
+  await page.getByRole("option", { name: /Background/ }).press("ArrowDown");
+  await page.getByRole("option", { name: /Mask/ }).press("Enter");
+  assert.equal(await page.getByRole("listbox", { name: "Placement" }).count(), 0);
+  assert.equal(await page.getByRole("button", { name: "Placement: Mask", exact: true }).evaluate(button => button === document.activeElement), true);
+  await page.getByRole("button", { name: "Placement: Mask", exact: true }).click();
+  assert.equal(await page.getByRole("option", { name: /Accent/ }).count(), 0);
+  await page.getByRole("option", { name: /Mask/ }).press("Escape");
   assert.equal(await page.locator(".bl-poster").getAttribute("data-placement"), "Mask");
   await page.getByLabel("Material strength", { exact: true }).fill("60");
   assert.match(await page.locator(".bl-poster").getAttribute("style"), /0.6/);
@@ -113,7 +126,8 @@ try {
     await page.getByRole("button", { name: "Back to canvas ↗" }).click();
   }
   await page.getByRole("button", { name: "Select Campaign poster" }).click();
-  await page.getByLabel("Placement", { exact: true }).selectOption("Background");
+  await page.getByRole("button", { name: "Placement: Mask", exact: true }).click();
+  await page.getByRole("option", { name: /Background/ }).click();
   await page.getByLabel("Material strength").fill("100");
   await page.getByRole("button", { name: "Close surface controls" }).click();
   await page.getByRole("button", { name: "Thermal Etch Burn", exact: true }).click();

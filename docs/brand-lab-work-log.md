@@ -56,6 +56,14 @@ Reports and desktop/mobile screenshots go into ignored `outputs/brand-lab`. Refe
 
 The host's `npm` shim points at a missing npm CLI; checks were run with `node node_modules/...` and `node --test` instead. This is a local environment limitation, not a changed package script.
 
+## Review refinement — 17 September 2026
+
+The first review asked for a more deliberate sidebar, removal of duplicate hover tooltips, a styled placement menu, and reconsideration of Accent placement. Desktop now uses compact named material rows with thumbnail/selection treatments; tablet retains a small two-column browser and one dark custom tooltip; mobile uses a horizontal strip. Native `title` tooltips were removed. A local placement listbox supports arrow keys, Home/End, Enter/Space, Escape, Tab, and outside-click dismissal. Descriptions explain the composition roles. Accent placement was removed from the poster/study mode definitions and CSS because its floating rectangles lacked a convincing compositional role. The invitation's deliberately composed material sample remains.
+
+Future variety still follows the handoff's curated Scene model: different compositions and applications, with several coherent Surfaces per Scene. This review does not authorize building a pattern/template library or the remaining Scenes.
+
+Validation: production build/TypeScript, scoped ESLint, and production interaction/resilience browser checks passed. Reviewed captures at 1745 × 828 and 390 × 844. Browser checks now bring the study into view before waiting for material readiness, respecting the existing offscreen preview pause; keyboard placement selection, focus return, Escape dismissal, and absence of native tooltip/Accent options are asserted. No renderer implementation was changed in this refinement.
+
 ## Review questions before expansion
 
 Judge the overall Campaign composition, the default identity/media choice, the balance of shader material and untouched photography, and whether sharing one treatment through cropped/masked roles provides enough creative range. Approve or refine that direction before adding another Scene or any export/setup infrastructure.
