@@ -1,8 +1,10 @@
 "use client";
 
+import { useTransferDial, useCaptureNativeSettings } from "./BrandLabTransfer";
+
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { DialRoot, useDialKitController, type DialConfig } from "dialkit";
+import { DialRoot, type DialConfig } from "dialkit";
 import { HighlightedCode } from "./HighlightedCode";
 import { PaletteEditor } from "./PaletteEditor";
 import { PanelResetButton } from "./PanelResetButton";
@@ -74,7 +76,7 @@ async function writeClipboard(text: string) {
 }
 
 export function ShaderLab() {
-  const dial = useDialKitController("Thermal Pixel Ink", DIAL_CONFIG, {
+  const dial = useTransferDial("Thermal Pixel Ink", DIAL_CONFIG, {
     id: "solace-thermal-pixel-ink",
     persist: true,
   });
@@ -118,6 +120,7 @@ export function ShaderLab() {
     [dial.values, selectedPreset],
   );
 
+  useCaptureNativeSettings(settings);
   const registryUrl = `${origin}/r/thermal-pixel-ink.json`;
   const registryCommand = origin
     ? `npx shadcn@latest add ${registryUrl}`

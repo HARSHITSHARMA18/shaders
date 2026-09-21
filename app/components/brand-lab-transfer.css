@@ -1,0 +1,5 @@
+.brandLabTransferNotice { display:flex; align-items:center; justify-content:space-between; gap:24px; padding:14px 28px; border-bottom:1px solid #d0d3c8; background:#f0efe7; color:#394332; font:11px/1.6 Consolas,monospace; }
+.brandLabTransferNotice a { flex-shrink:0; color:inherit; text-decoration:underline; text-underline-offset:4px; }
+@media(max-width:600px) { .brandLabTransferNotice { padding:12px 18px; flex-wrap:wrap; gap:8px; } }
+
+.brandLabTransferNotice button { flex-shrink:0; border:1px solid #a9b19f; border-radius:3px; padding:6px 10px; background:transparent; color:inherit; font:inherit; cursor:pointer; }.brandLabTransferNotice>span { flex:1; }

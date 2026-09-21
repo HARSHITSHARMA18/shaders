@@ -1,8 +1,10 @@
 "use client";
 
+import { useTransferDial, useBrandLabTransfer, useCaptureNativeSettings } from "./BrandLabTransfer";
+
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { DialRoot, type DialConfig, useDialKitController } from "dialkit";
+import { DialRoot, type DialConfig } from "dialkit";
 import {
   DEFAULT_FLUID_DISTORTION_SVG,
   FLUID_DISTORTION_CHARACTERS,
@@ -104,15 +106,16 @@ async function writeClipboard(text: string) {
 }
 
 export function FluidDistortionLab() {
+  const transfer = useBrandLabTransfer();
   const inputRef = useRef<HTMLInputElement>(null);
-  const [mediaUrl, setMediaUrl] = useState<string | undefined>("/fluid-distortion-hero.png");
-  const [mediaType, setMediaType] = useState<"image" | "video">("image");
-  const [mediaName, setMediaName] = useState("UI hero composition");
+  const [mediaUrl, setMediaUrl] = useState<string | undefined>(transfer?.brand.media ?? "/fluid-distortion-hero.png");
+  const [mediaType, setMediaType] = useState<"image" | "video">(transfer?.brand.mediaType ?? "image");
+  const [mediaName, setMediaName] = useState(transfer ? "Brand Lab campaign" : "UI hero composition");
   const [svgMarkup, setSvgMarkup] = useState(DEFAULT_FLUID_DISTORTION_SVG);
   const [svgDraft, setSvgDraft] = useState(DEFAULT_FLUID_DISTORTION_SVG);
   const [svgEditorOpen, setSvgEditorOpen] = useState(false);
 
-  const dial = useDialKitController("Fluid distortion", DIAL_CONFIG, {
+  const dial = useTransferDial("Fluid distortion", DIAL_CONFIG, {
     id: "solace-fluid-distortion-v1",
     persist: true,
     onAction: (action) => {
@@ -178,6 +181,7 @@ export function FluidDistortionLab() {
     },
   }), [dial.values, selectedCharacter, selectedPalette]);
 
+  useCaptureNativeSettings(settings);
   const usingMedia = settings.composition === "media" && Boolean(mediaUrl);
   const usingSvg = settings.composition === "svg";
   const registryUrl = `${origin}/r/fluid-distortion.json`;
@@ -199,7 +203,7 @@ ${svgDeclaration}
     cursorSize={${settings.cursorSize.toFixed(3)}}
     cursorPower={${settings.cursorPower.toFixed(2)}}
     distortion={${settings.distortion.toFixed(2)}}
-    softness={${settings.softness.toFixed(2)}}
+    softness={${settings.softness.toFixed(3)}}
     gloss={${settings.gloss.toFixed(2)}}
     swirl={${settings.swirl.toFixed(2)}}
     colors={{

@@ -1,8 +1,10 @@
 "use client";
 
+import { useTransferDial, useBrandLabTransfer, useCaptureNativeSettings } from "./BrandLabTransfer";
+
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { DialRoot, type DialConfig, useDialKitController } from "dialkit";
+import { DialRoot, type DialConfig } from "dialkit";
 import { HighlightedCode } from "./HighlightedCode";
 import { PaletteEditor } from "./PaletteEditor";
 import { PanelResetButton } from "./PanelResetButton";
@@ -98,11 +100,12 @@ async function writeClipboard(text: string) {
 }
 
 export function SpecimenIndexLab() {
+  const transfer = useBrandLabTransfer();
   const inputRef = useRef<HTMLInputElement>(null);
-  const [mediaUrl, setMediaUrl] = useState(DEFAULT_MEDIA_SOURCE);
-  const [mediaType, setMediaType] = useState<"image" | "video">("image");
-  const [mediaName, setMediaName] = useState("Linum specimen / 001");
-  const dial = useDialKitController("Specimen index", DIAL_CONFIG, {
+  const [mediaUrl, setMediaUrl] = useState(transfer?.brand.media ?? DEFAULT_MEDIA_SOURCE);
+  const [mediaType, setMediaType] = useState<"image" | "video">(transfer?.brand.mediaType ?? "image");
+  const [mediaName, setMediaName] = useState(transfer ? "Brand Lab campaign" : "Linum specimen / 001");
+  const dial = useTransferDial("Specimen index", DIAL_CONFIG, {
     id: "solace-specimen-index-v1",
     persist: true,
     onAction: (action) => {
@@ -157,6 +160,7 @@ export function SpecimenIndexLab() {
     },
   }), [dial.values, selectedStudy]);
 
+  useCaptureNativeSettings(settings);
   const registryUrl = `${origin}/r/specimen-index.json`;
   const registryCommand = `npx shadcn@latest add ${registryUrl}`;
   const snippet = `import { SpecimenIndex } from "@/components/specimen-index";

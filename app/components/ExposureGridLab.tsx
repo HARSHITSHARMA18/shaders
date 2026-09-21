@@ -1,8 +1,10 @@
 "use client";
 
+import { useTransferDial, useBrandLabTransfer, useCaptureNativeSettings } from "./BrandLabTransfer";
+
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { DialRoot, type DialConfig, useDialKitController } from "dialkit";
+import { DialRoot, type DialConfig } from "dialkit";
 import { ExposureGrid, type ExposureGridColors, type ExposureGridSettings } from "./ExposureGrid";
 import { HighlightedCode } from "./HighlightedCode";
 import { PaletteEditor } from "./PaletteEditor";
@@ -77,11 +79,12 @@ async function writeClipboard(text: string) {
 }
 
 export function ExposureGridLab() {
+  const transfer = useBrandLabTransfer();
   const inputRef = useRef<HTMLInputElement>(null);
-  const [mediaUrl, setMediaUrl] = useState(DEFAULT_MEDIA_SOURCE);
-  const [mediaType, setMediaType] = useState<"image" | "video">("image");
-  const [mediaName, setMediaName] = useState("Himalayan field study");
-  const dial = useDialKitController("Exposure grid", DIAL_CONFIG, {
+  const [mediaUrl, setMediaUrl] = useState(transfer?.brand.media ?? DEFAULT_MEDIA_SOURCE);
+  const [mediaType, setMediaType] = useState<"image" | "video">(transfer?.brand.mediaType ?? "image");
+  const [mediaName, setMediaName] = useState(transfer ? "Brand Lab campaign" : "Himalayan field study");
+  const dial = useTransferDial("Exposure grid", DIAL_CONFIG, {
     id: "solace-exposure-grid-v2",
     persist: true,
     onAction: (action) => {
@@ -115,6 +118,7 @@ export function ExposureGridLab() {
     colors: { grid: dial.values.color.grid, accent: dial.values.color.accent, secondary: dial.values.color.secondary, ink: dial.values.color.ink, paper: dial.values.color.paper },
   }), [dial.values]);
 
+  useCaptureNativeSettings(settings);
   const registryUrl = `${origin}/r/exposure-grid.json`;
   const registryCommand = `npx shadcn@latest add ${registryUrl}`;
   const snippet = `import { ExposureGrid } from "@/components/exposure-grid";

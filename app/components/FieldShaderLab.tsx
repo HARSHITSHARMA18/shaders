@@ -1,8 +1,10 @@
 "use client";
 
+import { useTransferDial, useCaptureNativeSettings } from "./BrandLabTransfer";
+
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { DialRoot, useDialKitController, type DialConfig } from "dialkit";
+import { DialRoot, type DialConfig } from "dialkit";
 import { HighlightedCode } from "./HighlightedCode";
 import { PaletteEditor } from "./PaletteEditor";
 import { PanelResetButton } from "./PanelResetButton";
@@ -131,7 +133,7 @@ export function FieldShaderLab({ variant }: { variant: FieldShaderVariant }) {
   const definition = DEFINITIONS[variant];
   const defaultPalette = DEFAULT_PALETTES[variant];
   const dialConfig = useMemo(() => createFieldDials(defaultPalette), [defaultPalette]);
-  const dial = useDialKitController(definition.title, dialConfig, {
+  const dial = useTransferDial(definition.title, dialConfig, {
     id: `solace-${definition.slug}`,
     persist: true,
   });
@@ -168,6 +170,7 @@ export function FieldShaderLab({ variant }: { variant: FieldShaderVariant }) {
     [dial.values, selectedPreset],
   );
 
+  useCaptureNativeSettings(settings);
   const registryUrl = `${origin}/r/${definition.slug}.json`;
   const registryCommand = origin
     ? `npx shadcn@latest add ${registryUrl}`

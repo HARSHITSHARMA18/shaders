@@ -1,8 +1,10 @@
 "use client";
 
+import { useTransferDial, useBrandLabTransfer, useCaptureNativeSettings } from "./BrandLabTransfer";
+
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { DialRoot, type DialConfig, useDialKitController } from "dialkit";
+import { DialRoot, type DialConfig } from "dialkit";
 import { HighlightedCode } from "./HighlightedCode";
 import { PaletteEditor } from "./PaletteEditor";
 import { PanelResetButton } from "./PanelResetButton";
@@ -106,7 +108,13 @@ async function writeClipboard(text: string) {
 }
 
 export function ThermalEtchBurnLab() {
-  const dial = useDialKitController("Thermal etch burn", DIAL_CONFIG, {
+  const transfer = useBrandLabTransfer();
+  const [mediaUrl, setMediaUrl] = useState(transfer?.brand.media);
+  const [mediaError, setMediaError] = useState("");
+  const mediaGeneration = useRef(0);
+  useEffect(() => () => { mediaGeneration.current++; }, []);
+  useEffect(() => () => { if (mediaUrl?.startsWith("blob:")) URL.revokeObjectURL(mediaUrl); }, [mediaUrl]);
+  const dial = useTransferDial("Thermal etch burn", DIAL_CONFIG, {
     id: "solace-thermal-etch-burn",
     persist: true,
   });
@@ -148,12 +156,14 @@ export function ThermalEtchBurnLab() {
     [dial.values],
   );
 
+  useCaptureNativeSettings(settings);
   const registryUrl = `${origin}/r/thermal-etch-burn.json`;
   const registryCommand = `npx shadcn@latest add ${registryUrl}`;
+  const mediaProp = mediaUrl ? '\n    src="/your-image.jpg"' : "";
   const snippet = `import { ThermalEtchBurn } from "@/components/thermal-etch-burn";
 
 <div className="relative h-[560px] overflow-hidden rounded-2xl">
-  <ThermalEtchBurn
+  <ThermalEtchBurn${mediaProp}
     progress={${settings.progress.toFixed(2)}}
     speed={${settings.speed.toFixed(2)}}
     edgeWidth={${settings.edgeWidth.toFixed(3)}}
@@ -205,13 +215,28 @@ export function ThermalEtchBurnLab() {
             </p>
           </div>
 
+          {transfer && <input aria-label="Replace campaign image" type="file" accept="image/*" hidden onChange={async event => {
+            const file = event.target.files?.[0]; event.target.value = "";
+            if (!file) return;
+            if (!file.type.startsWith("image/") || file.size > 12 * 1024 * 1024) { setMediaError("Choose an image under 12 MB."); return; }
+            const generation = ++mediaGeneration.current;
+            const url = URL.createObjectURL(file);
+            const image = new Image(); image.src = url;
+            try {
+              await image.decode();
+              if (generation !== mediaGeneration.current) { URL.revokeObjectURL(url); return; }
+              setMediaUrl(url); setMediaError("");
+            } catch { URL.revokeObjectURL(url); if (generation === mediaGeneration.current) setMediaError("This image could not be opened. Your previous image stays in place."); }
+          }} />}
+          {mediaError && <p role="status">{mediaError}</p>}
           <div className="stage fieldStage etchStage">
             <ThermalEtchBurn
               className="shaderCanvas"
+              src={mediaUrl}
               settings={settings}
             />
             <div className="stageTop" aria-hidden="true">
-              <span>Procedural print</span>
+              <span>{mediaUrl ? "Brand Lab campaign" : "Procedural print"}</span>
               <span>WebGL 2</span>
             </div>
             <div className="stageBottom">

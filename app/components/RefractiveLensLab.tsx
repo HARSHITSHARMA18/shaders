@@ -1,8 +1,10 @@
 "use client";
 
+import { useTransferDial, useBrandLabTransfer, useCaptureNativeSettings } from "./BrandLabTransfer";
+
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { DialRoot, type DialConfig, useDialKitController } from "dialkit";
+import { DialRoot, type DialConfig } from "dialkit";
 import { HighlightedCode } from "./HighlightedCode";
 import { PaletteEditor } from "./PaletteEditor";
 import { PanelResetButton } from "./PanelResetButton";
@@ -88,14 +90,15 @@ async function writeClipboard(text: string) {
 }
 
 export function RefractiveLensLab() {
+  const transfer = useBrandLabTransfer();
   const inputRef = useRef<HTMLInputElement>(null);
-  const [mediaUrl, setMediaUrl] = useState(DEFAULT_MEDIA_SOURCE);
-  const [mediaType, setMediaType] = useState<"image" | "video">("image");
-  const [mediaName, setMediaName] = useState("Renaissance landscape");
+  const [mediaUrl, setMediaUrl] = useState(transfer?.brand.media ?? DEFAULT_MEDIA_SOURCE);
+  const [mediaType, setMediaType] = useState<"image" | "video">(transfer?.brand.mediaType ?? "image");
+  const [mediaName, setMediaName] = useState(transfer ? "Brand Lab campaign" : "Renaissance landscape");
   const [svgMarkup, setSvgMarkup] = useState(DEFAULT_REFRACTIVE_LENS_SVG);
   const [svgDraft, setSvgDraft] = useState(DEFAULT_REFRACTIVE_LENS_SVG);
   const [svgEditorOpen, setSvgEditorOpen] = useState(false);
-  const dial = useDialKitController("Refractive lens", DIAL_CONFIG, {
+  const dial = useTransferDial("Refractive lens", DIAL_CONFIG, {
     id: "solace-refractive-lens-v3",
     persist: true,
     onAction: (action) => {
@@ -144,6 +147,7 @@ export function RefractiveLensLab() {
     position: [0.5, 0.5],
   }), [dial.values]);
 
+  useCaptureNativeSettings(settings);
   const registryUrl = `${origin}/r/refractive-lens.json`;
   const registryCommand = `npx shadcn@latest add ${registryUrl}`;
   const svgDeclaration = settings.shape === "svg"

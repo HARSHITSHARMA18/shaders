@@ -1,8 +1,10 @@
 "use client";
 
+import { useTransferDial, useBrandLabTransfer, useCaptureNativeSettings } from "./BrandLabTransfer";
+
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import { DialRoot, useDialKitController, type DialConfig } from "dialkit";
+import { DialRoot, type DialConfig } from "dialkit";
 import { HighlightedCode } from "./HighlightedCode";
 import { PaletteEditor } from "./PaletteEditor";
 import { PanelResetButton } from "./PanelResetButton";
@@ -75,14 +77,15 @@ async function writeClipboard(text: string) {
 }
 
 export function ParticleMorphLab() {
-  const [targetMode, setTargetMode] = useState<ParticleMorphPreset>("svg");
-  const [targetText, setTargetText] = useState("SOLACE");
+  const transfer = useBrandLabTransfer();
+  const [targetMode, setTargetMode] = useState<ParticleMorphPreset>(transfer ? "word" : "svg");
+  const [targetText, setTargetText] = useState(transfer?.brand.name.slice(0, 12) ?? "SOLACE");
   const [svgMarkup, setSvgMarkup] = useState(SOLACE_MARK_SVG);
   const [svgDraft, setSvgDraft] = useState(SOLACE_MARK_SVG);
   const [svgEditorOpen, setSvgEditorOpen] = useState(false);
   const svgEditorRef = useRef<HTMLTextAreaElement>(null);
   const dialConfig = useMemo(() => createParticleDials(targetMode), [targetMode]);
-  const dial = useDialKitController("Particle assembly", dialConfig, {
+  const dial = useTransferDial("Particle assembly", dialConfig, {
     id: "solace-particle-assembly",
     persist: true,
     onAction: (action) => {
@@ -133,6 +136,7 @@ export function ParticleMorphLab() {
     },
   }), [configuredText, dial.values, selectedPalette, selectedTarget, svgMarkup]);
 
+  useCaptureNativeSettings(settings);
   const resetControls = () => {
     dial.resetValues();
     setTargetMode("svg");

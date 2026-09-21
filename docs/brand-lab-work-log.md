@@ -70,6 +70,68 @@ Added the desktop material sidebar's left border and balanced its inset. The bra
 
 Validation: production build/TypeScript, scoped ESLint, visual inspection at 1745 × 828 / 390 × 844, and final production browser checks passed. Checks assert centered/bounded desktop dialog, full-height mobile dialog, visible asset-local controls within the viewport, removal of footer controls, and the existing interactions/resilience checks. Some earlier headless runs timed out returning from Original to Thermal; a final production rerun passed. Cold shader preparation still warrants performance follow-up before expansion. Readiness failures now emit diagnostic state and a screenshot, rather than only a timeout.
 
+## Campaign refinement pass
+
+See [the refinement review](./brand-lab-refinement.md) for the all-shader visual review, reproduced delayed-module timeout, visibility lifecycle fix, recovery/keyboard improvements, smaller mobile source, and measured GPU-draw/buffer findings. This pass remains uncommitted as requested.
+
 ## Review questions before expansion
 
+### Brand colors and Original refinement
+
+Brand Lab now reuses the core shader panels' `PaletteEditor` with Primary/Secondary stops, a saturation/brightness field, hue slider, and validated hex input. Light styling is scoped to the Brand Lab dialog; the shared component is unchanged. The Original entry uses a small outlined image symbol rather than the slashed glyph. TypeScript, scoped lint, and browser integration checks passed for color propagation, both stops, hue/keyboard adjustment, reset, desktop/mobile dialog bounds, and Original disabling the renderer.
+
+The user requested that all subsequent work remain uncommitted unless they explicitly ask to commit. This refinement is left unstaged/uncommitted; earlier commits remain intact.
+
 Judge the overall Campaign composition, the default identity/media choice, the balance of shader material and untouched photography, and whether sharing one treatment through cropped/masked roles provides enough creative range. Approve or refine that direction before adding another Scene or any export/setup infrastructure.
+
+## 2026-09-17 — Setup links and shader-editor transfer
+
+Added versioned Campaign setup links and isolated temporary editor transfers for all fourteen canonical shaders. Scene previews and transfer use one typed native snapshot. Saved editor values and named presets remain intact, including after temporary edits. Uploaded files are explicitly excluded from portable links and prompt replacement; Etch now supports transferred Campaign images and replacement. Native editor edits do not flow back into Campaign in this slice. See brand-lab-transfer.md for file reuse, architecture, validation, and limitations. All changes remain uncommitted on feat/brand-lab.
+
+## 2026-09-17 — Curated in-page shader tuning
+
+Following the user's approval of the handoff's restrained controls, added Tune shader with an on-demand right drawer/mobile sheet using actual DialKit sliders. Three capability-aware numeric controls per shader update Campaign's native renderer settings, stay separate from Surface strength/placement, and survive switching effects. Viscous exposes Trail instead of Scale to avoid a previously observed wrap seam. Reused PaletteEditor inside a collapsed Brand colors section. Added reset, keyboard interaction, focus return, and tuned setup/editor transfers; version-1 links migrate to version 2. No global DialKit panel or persisted editor values are modified. No feature expansion beyond Campaign. All changes remain uncommitted. See brand-lab-tuning.md.
+
+## 2026-09-18 — Curated tuning final verification
+
+Final production build and TypeScript, scoped ESLint, all five repository tests, and whitespace checks passed. Browser QA verified all 42 curated controls, tuned transfers to all fourteen native editors, source retention, local switching, palette/color editing, setup restoration, legacy migration, invalid-value handling, reset, mobile bounds, and reduced-motion recapture. Fluid configured JSX now retains the softness control's three-decimal precision. Reviewed the final compact desktop drawer and mobile sheet screenshots. Physical-device performance remains unmeasured. All changes remain uncommitted on feat/brand-lab for review.
+
+## 2026-09-18 — Campaign performance follow-up
+
+Measured image/video preview copies for Viscous, Exposure and Fluid at desktop and emulated-mobile viewports. ShaderMaterial now skips live offscreen presentation copies after seeding every role; reduced motion still captures the complete Scene. Desktop samples with two offscreen roles halved the copy count, while native shader rendering cost is unchanged. Scrolling resumes copied frames. A long host-pause sample is excluded from timing conclusions; physical-device testing remains pending. See brand-lab-performance.md and the review-only brand-lab-identity-proposal.md. Production build/TypeScript, scoped lint, five repository tests and the full shader/pixel/media/recovery browser checks passed. All changes remain uncommitted on feat/brand-lab.
+
+## 2026-09-18 — Identity Scene
+
+Following explicit user authorization, added an art-directed Identity specimen with actual shaders, restrained Scene switching, separate Surface treatments, shared brand/tuning, portable Identity setup restoration and return links from the existing editors. Desktop/mobile layouts were visually inspected. All fourteen shaders produced real pixels; treatment switching, logo replacement, setup/native transfer and reduced-motion checks passed. Particle signature controls are constrained to its actual full-frame word assembly. See brand-lab-identity.md. Everything remains unstaged/uncommitted on feat/brand-lab; no further Scenes, Compare or exports were built.
+
+## 2026-09-18 — Drafting canvas finish
+
+Added CanvasFrame around both Scenes with a faint 20px grid, subdued 100px major divisions on desktop, and narrow top/left rulers. SVG ticks and labels measure canvas CSS pixels from the same grid origin; PX distinguishes them from asset/export dimensions. ResizeObserver updates ruler geometry only on layout changes, with no animation loop or shader changes. Decoration is hidden from accessibility and ignores pointer input. Mobile uses a lighter single grid and a protected ruler gutter. Build/TypeScript, scoped lint, desktop/mobile ruler sizing and overflow checks passed; both Scene screenshots were visually inspected. Existing uncommitted work is preserved on feat/brand-lab.
+
+## 2026-09-18 — Web Scene
+
+Added an explicit Web landing-page specimen with actual shader hero, feature and CTA roles. Reused brand/tuning/context controls, drafting grid/rulers, one native preview source and setup/editor transfer. All fourteen native effects produced real hero pixels. Surface treatments survive switching among Campaign, Identity and Web; tuned Web links restore and editor transfer returns to Web. Video, Original, reduced motion and responsive bounds at 320/390/768 pixels passed. Desktop, mobile and tablet compositions were visually inspected. Fixed hero/CTA aspect-ratio plus minimum-height overflow by constraining widths to their containing canvas. Build/TypeScript, scoped lint, five repository tests, whitespace and Campaign interaction/recovery regressions passed. See brand-lab-web.md. Everything remains unstaged/uncommitted on feat/brand-lab; no further Scenes, Compare or exports were built.
+
+## 2026-09-19 — Four-sided drafting frame
+
+Moved the Campaign/Identity/Web switcher, active shader name, Tune shader and View original controls inside CanvasFrame below the top ruler. Added matching right/bottom rulers and corner joins around the existing faint grid, so rulers mark all four inner edges without overlapping the controls. Restored View original on narrow screens in a compact two-row toolbar. The units remain viewport CSS pixels, not export dimensions; rulers are decorative, pointer-transparent and hidden from assistive technology. Build/TypeScript, scoped lint, five repository tests, visual inspection and a 12-combination browser check of desktop/tablet/mobile ruler geometry, controls and overflow passed. Everything remains uncommitted on feat/brand-lab.
+
+## 2026-09-19 � Scene pattern refinement
+
+Responding to the review that Campaign, Identity and Web repeated the same centered material too often, varied the live shader's role rather than importing or reproducing reference patterns. Campaign uses a diagonal generated-material cut through photography and a full brand-name shader mask. Identity gives its secondary tile a full-field material treatment, labels it with the brand, and places a circular material specimen over the original image. Web gives the feature image a horizontal material band and the call to action sparse diagonal rails. The native renderer is still shared; deterministic, surface-specific crop windows in ShaderMaterial change the framing for generated shaders without adding WebGL contexts. Media-processing shaders keep their original media alignment. The Brand Lab controls, setup links and existing Surface treatment options remain available.
+
+Production build, TypeScript, scoped ESLint, five repository tests and git diff --check passed. Visual QA covered Campaign/Identity/Web with Viscous Cursor Dye and Exposure Grid at 1745px and 390px; all twelve render/overflow checks passed. The main Brand Lab, Identity and Web browser checks passed across all fourteen shaders, interactions, setup and responsive states. Physical-device performance remains to be measured. All work stays unstaged and uncommitted on feat/brand-lab.
+
+## 2026-09-19 - Art direction review: five applications
+
+The review rejected the earlier secondary assets as too raw. Kept the Campaign hero poster as the anchor, rebuilt its material study as a two-poster campaign pair, and made the third asset a coordinated material/typography graphic pair. Rebuilt Identity around a dark typographic brand spread and two aligned graphic studies; one uses a fine halftone mask over the real shader. Rebuilt Web as a content-led promo with an inset event card, an editorial feature, and a deliberate footer banner. These adapt the compositional ideas in the user-provided Light Rails examples without copying its typography, copy, palette, or assets. Every material region still uses the repository's native shader source. Renamed Surface labels and dimensions to match the new applications, and removed the selected-shader dots from the sidebar and canvas toolbar. Default treatments now expose the material across the new spread, graphic pair and banner; existing portable setups retain their chosen treatments.
+
+Visually reviewed generated and media-processing shader captures for Campaign, Identity and Web at 1745 and 390 pixels, corrected narrow-screen text collisions and an inherited shader-height rule, and reran twelve render/overflow checks. Production build, TypeScript, scoped ESLint, five repository tests, all-shader Campaign/Identity/Web browser checks, setup and editor-transfer checks, reduced motion and no-WebGL fallback passed. This remains a curated set of applications, not a pattern browser or export system. Physical-device performance is still unmeasured. All work remains unstaged and uncommitted on feat/brand-lab.
+
+## 2026-09-20 - SolaceUI defaults and working assets
+
+Made Specimen Index with its native palette, the untouched SolaceUI SVG, and the current mountain media the Brand Lab defaults. The Campaign poster colors the mark white at display time; Identity uses a white signature copy panel with a black mark, one type family, and a material-only Graphic Study B; Web uses one type family and removes the misplaced Editorial Feature image. The SVG bytes remain unchanged in public/brand-lab/solaceui-mark.svg. All three default Scenes were visually checked at desktop and mobile sizes.
+
+Added a reverse path from each native shader editor into Brand Lab. The editor reads its live DialKit state and transfers the curated numeric controls supported by Brand Lab; direct visits open Campaign, while sessions started in Brand Lab return to their Scene with those edits. Custom native-only controls and uploaded media remain outside portable setup links. Selected asset panels now expose per-asset secondary copy, preserving edits in setup links, and download the selected asset as a PNG at its listed preset dimensions. Campaign poster (1080x1350), Identity signature (1600x840), and Web editorial feature (1200x900) exports were captured and visually inspected. The material is a live preview frame, so these are static preview images rather than animation or print-resolution shader re-renders.
+
+Retained the previous canvas bitmap while switching shaders and added a quiet composing state before the first shader frame, avoiding the brief original artwork flash. Production build, TypeScript, scoped lint, core tests, Identity shader sweep, Web interactions, editable-copy roundtrip, PNG export and an actual Specimen native-control return passed. All fourteen native adapter/setup regressions and the full Campaign shader, input, recovery and responsive browser suite passed against the production build. No commit was made; all work remains on feat/brand-lab.

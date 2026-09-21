@@ -1,8 +1,10 @@
 "use client";
 
+import { useTransferDial, useBrandLabTransfer, useCaptureNativeSettings } from "./BrandLabTransfer";
+
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
-import { DialRoot, type DialConfig, useDialKitController } from "dialkit";
+import { DialRoot, type DialConfig } from "dialkit";
 import {
   BLACKHOLE_LENSING_PALETTES,
   BLACKHOLE_LENSING_PRESETS,
@@ -77,12 +79,13 @@ async function writeClipboard(text: string) {
 }
 
 export function BlackholeLensingLab() {
+  const transfer = useBrandLabTransfer();
   const inputRef = useRef<HTMLInputElement>(null);
-  const [mediaUrl, setMediaUrl] = useState<string | undefined>(DEFAULT_MEDIA_SOURCE);
-  const [mediaType, setMediaType] = useState<"image" | "video">("image");
-  const [mediaName, setMediaName] = useState("Halftone city study");
+  const [mediaUrl, setMediaUrl] = useState<string | undefined>(transfer?.brand.media ?? DEFAULT_MEDIA_SOURCE);
+  const [mediaType, setMediaType] = useState<"image" | "video">(transfer?.brand.mediaType ?? "image");
+  const [mediaName, setMediaName] = useState(transfer ? "Brand Lab campaign" : "Halftone city study");
 
-  const dial = useDialKitController("Blackhole lensing", DIAL_CONFIG, {
+  const dial = useTransferDial("Blackhole lensing", DIAL_CONFIG, {
     id: "solace-blackhole-lensing-v2",
     persist: true,
     onAction: (action) => {
@@ -148,6 +151,7 @@ export function BlackholeLensingLab() {
     },
   }), [dial.values, selectedPalette]);
 
+  useCaptureNativeSettings(settings);
   const registryUrl = `${origin}/r/blackhole-lensing.json`;
   const registryCommand = `npx shadcn@latest add ${registryUrl}`;
 

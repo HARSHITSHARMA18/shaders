@@ -88,6 +88,8 @@ try {
   await page.getByRole("button", { name: "Select Campaign poster", exact: true }).press("Enter");
   const treatmentCard = page.getByRole("region", { name: "Campaign poster controls", exact: true });
   await treatmentCard.waitFor();
+  await page.waitForFunction(() => document.activeElement?.classList.contains("bl-placement-trigger"), undefined, { timeout: 2000 });
+  assert.equal(await page.getByRole("button", { name: "Placement: Background", exact: true }).evaluate(button => button === document.activeElement), true, "Keyboard asset selection leads into its controls");
   const treatmentRect = await treatmentCard.boundingBox();
   assert.ok(treatmentRect.y >= 0 && treatmentRect.y + treatmentRect.height <= 1000, "Asset controls stay in the viewport");
   assert.equal(await page.locator(".bl-context").count(), 0, "No controls at the end of the canvas");
@@ -99,6 +101,10 @@ try {
   assert.equal(await page.getByRole("button", { name: "Placement: Mask", exact: true }).evaluate(button => button === document.activeElement), true);
   await page.getByRole("button", { name: "Placement: Mask", exact: true }).click();
   assert.equal(await page.getByRole("option", { name: /Accent/ }).count(), 0);
+  await page.getByRole("option", { name: /Mask/ }).press("Escape");
+  await page.getByRole("button", { name: "Placement: Mask", exact: true }).click();
+  const placementMenuRect = await page.getByRole("listbox", { name: "Placement" }).boundingBox();
+  assert.ok(placementMenuRect.y >= 0 && placementMenuRect.y + placementMenuRect.height <= 1000, "Placement menu fits available viewport space");
   await page.getByRole("option", { name: /Mask/ }).press("Escape");
   assert.equal(await page.locator(".bl-poster").getAttribute("data-placement"), "Mask");
   await page.getByLabel("Material strength", { exact: true }).fill("60");
@@ -170,8 +176,8 @@ try {
   await ready();
   assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth), false, "Mobile must not overflow horizontally");
   await page.screenshot({ path: path.join(output, "campaign-mobile.png"), fullPage: true });
-  await page.getByRole("button", { name: "Select Material study", exact: true }).click();
-  const mobileControls = await page.getByRole("region", { name: "Material study controls", exact: true }).boundingBox();
+  await page.getByRole("button", { name: "Select Poster pair", exact: true }).click();
+  const mobileControls = await page.getByRole("region", { name: "Poster pair controls", exact: true }).boundingBox();
   assert.ok(mobileControls.x >= 0 && mobileControls.x + mobileControls.width <= 390 && mobileControls.y + mobileControls.height <= 844, "Mobile treatment card fits onscreen");
   await page.getByRole("button", { name: "Close surface controls" }).click();
   await page.getByRole("button", { name: "Use your brand ↗" }).click();
@@ -196,6 +202,37 @@ try {
   await fallback.goto(process.env.BRAND_LAB_URL || "http://127.0.0.1:3000/brand-lab");
   await fallback.getByText("Live material unavailable.", { exact: false }).waitFor({ timeout: 15000 });
   await fallback.close();
+
+  // A delayed observer delivery must not pause a Scene whose current layout
+  // is visible. Browser callbacks can arrive after layout/viewport changes.
+  const visibilityRace = await browser.newPage();
+  await visibilityRace.addInitScript(() => {
+    const NativeObserver = window.IntersectionObserver;
+    window.IntersectionObserver = class extends NativeObserver {
+      constructor(callback, options) {
+        super((entries, observer) => {
+          callback(entries, observer);
+          if (entries.some(entry => entry.target.classList.contains("bl-scene"))) {
+            setTimeout(() => callback(entries.map(entry => ({ ...entry, target: entry.target, isIntersecting: false })), observer), 150);
+          }
+        }, options);
+      }
+    };
+  });
+  await visibilityRace.goto(process.env.BRAND_LAB_URL || "http://127.0.0.1:3000/brand-lab");
+  await visibilityRace.locator('canvas[data-material="poster"][data-ready="true"]').waitFor();
+  await visibilityRace.waitForTimeout(500);
+  assert.equal(await visibilityRace.locator(".bl-source canvas").count(), 1, "A stale observer delivery cannot stop the visible renderer");
+  await visibilityRace.getByRole("button", { name: "Viscous Cursor Dye", exact: true }).click();
+  await visibilityRace.locator(".bl-source canvas").waitFor();
+  await visibilityRace.locator('canvas[data-material="poster"][data-ready="true"]').waitFor();
+  assert.equal(await visibilityRace.locator(".bl-source canvas").count(), 1, "Active-material reselection retries the preview");
+  await visibilityRace.locator(".bl-source canvas").evaluate(canvas => canvas.getContext("webgl2").getExtension("WEBGL_lose_context").loseContext());
+  await visibilityRace.getByText("Live material unavailable.", { exact: false }).waitFor();
+  await visibilityRace.getByRole("button", { name: "Viscous Cursor Dye", exact: true }).click();
+  await visibilityRace.locator('canvas[data-material="poster"][data-ready="true"]').waitFor();
+  assert.equal(await visibilityRace.locator(".bl-source canvas").count(), 1, "Active-material reselection recovers after context loss");
+  await visibilityRace.close();
   assert.deepEqual(errors, [], "No uncaught browser errors");
   assert.deepEqual(messages.filter(message => !message.includes("Failed to load resource")), [], "No shader compilation errors");
   assert.deepEqual(warnings.filter(message => /Too many active WebGL|CONTEXT_LOST/i.test(message)), [], "No context exhaustion after repeated switching");
