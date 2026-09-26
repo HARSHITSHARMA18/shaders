@@ -22,10 +22,10 @@ export function ShaderControlsDrawer({ shader, brand, palette, tuning, setup, on
   return <aside id="bl-shader-controls" className="bl-tune-drawer" aria-labelledby="bl-tune-heading" onKeyDown={event => {
     if (event.key === "Escape" && !(event.target as HTMLElement).closest(".paletteEditorMeta")) { event.preventDefault(); event.stopPropagation(); onClose(); }
   }}>
-    <div className="bl-tune-top"><span className="bl-kicker">TUNE THE MATERIAL</span><button type="button" aria-label="Close shader controls" onClick={onClose}>×</button></div>
+    <div className="bl-tune-top"><span className="bl-kicker">TUNE THE MATERIAL</span><button type="button" aria-label="Close shader controls" onClick={onClose}><svg viewBox="0 0 20 20" aria-hidden="true" width="13" height="13"><path d="m5 5 10 10M15 5 5 15" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg></button></div>
     <h2 id="bl-tune-heading" ref={headingRef} tabIndex={-1}>{shader.title}</h2>
     <p className="bl-tune-intro">{setup.editorNative ? "Imported editor preset. Adjust it here, or choose a Brand Lab palette." : "Small adjustments. A different expression."}</p>
-    <div className="bl-tune-dials dialkit-root" data-theme="light" data-mode="inline">
+    <div className="bl-tune-dials dialkit-root" data-theme="dark" data-mode="inline">
       {controls.map(control => {
         const value = Number((settings as unknown as Record<string, unknown>)[control.key]);
         const change = (next: number) => { if (Number.isFinite(next)) onChange(control.key, clampControl(control, next)); };

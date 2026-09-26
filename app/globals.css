@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+/* Manrope Latin, SIL OFL. Shared by the catalog, editors, and Brand Lab. */
+@font-face {
+  font-family: "Manrope";
+  src: url("/fonts/manrope/manrope-latin.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 200 800;
+  font-display: swap;
+}
+
 :root {
   --bg: #070908;
   --panel: #111311;
@@ -20,7 +29,7 @@ body {
   margin: 0;
   background: var(--bg);
   color: var(--text);
-  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family: "Manrope", ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-weight: 400;
 }
 
@@ -67,6 +76,7 @@ summary:focus-visible {
 /* Catalog */
 
 .catalogPage {
+  --catalog-gutter: clamp(16px, 4vw, 64px);
   min-height: 100vh;
   background: var(--paper);
   color: var(--ink);
@@ -77,7 +87,7 @@ summary:focus-visible {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 clamp(20px, 4vw, 64px);
+  padding: 0 var(--catalog-gutter);
   border-bottom: 1px solid rgba(16, 18, 16, 0.16);
 }
 
@@ -126,33 +136,67 @@ summary:focus-visible {
   text-underline-offset: 3px;
 }
 
-.catalogPage main { padding: 0 clamp(20px, 4vw, 64px) 80px; }
-
-.catalogHero {
-  padding: clamp(64px, 9vw, 132px) 0 clamp(52px, 7vw, 96px);
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(260px, 410px);
-  gap: 40px;
-  align-items: end;
+.catalogPage main {
+  padding: 0 var(--catalog-gutter) clamp(56px, 7vw, 96px);
 }
 
-.catalogHero .eyebrow { grid-column: 1 / -1; color: #747873; margin-bottom: -12px; }
+.catalogHero {
+  padding: clamp(40px, 5.5vw, 84px) 0 clamp(40px, 5vw, 72px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.catalogHero .eyebrow {
+  color: #747873;
+  margin-bottom: clamp(12px, 1.4vw, 18px);
+}
 
 .catalogHero h1 {
   margin: 0;
-  max-width: 900px;
-  font-size: clamp(48px, 7.5vw, 112px);
-  line-height: 0.9;
-  letter-spacing: -0.065em;
+  font-size: clamp(40px, 6.8vw, 108px);
+  line-height: 0.92;
+  letter-spacing: -0.055em;
   font-weight: 500;
+  max-width: min(100%, 12.2em);
+  text-wrap: balance;
 }
 
 .catalogHero p {
-  margin: 0 0 5px;
+  margin: clamp(20px, 2.5vw, 32px) 0 0;
   color: #5b5f5a;
-  font-size: 14px;
+  font-size: clamp(13.5px, 1.05vw, 15px);
   line-height: 1.6;
-  max-width: 390px;
+  max-width: min(100%, 460px);
+}
+
+@media (min-width: 1320px) {
+  .catalogHero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "eyebrow eyebrow"
+      "title   desc";
+    column-gap: clamp(48px, 4.5vw, 88px);
+    row-gap: 16px;
+    align-items: end;
+  }
+
+  .catalogHero .eyebrow {
+    grid-area: eyebrow;
+    margin-bottom: 0;
+  }
+
+  .catalogHero h1 {
+    grid-area: title;
+  }
+
+  .catalogHero p {
+    grid-area: desc;
+    margin: 0;
+    max-width: 350px;
+    padding-bottom: 3px;
+  }
 }
 
 .shaderGrid {
@@ -1002,7 +1046,7 @@ summary:focus-visible {
   box-shadow:
     0 9px 26px rgba(0, 0, 0, 0.28),
     0 1px 2px rgba(0, 0, 0, 0.18);
-  font: 10px/1.25 Inter, ui-sans-serif, sans-serif;
+  font: 10px/1.25 "Manrope", ui-sans-serif, sans-serif;
   letter-spacing: -0.01em;
   text-wrap: balance;
   pointer-events: none;
@@ -1079,10 +1123,8 @@ summary:focus-visible {
 }
 
 @media (max-width: 720px) {
-  .catalogHeader { height: 62px; }
+  .catalogHeader { height: 66px; }
   .catalogMaker { display: none; }
-  .catalogHero { grid-template-columns: 1fr; gap: 24px; padding: 64px 0 52px; }
-  .catalogHero .eyebrow { margin-bottom: -2px; }
   .shaderGrid { grid-template-columns: 1fr; }
   .featuredCard { grid-column: auto; }
   .shaderPreview, .featuredCard .shaderPreview { height: 260px; }

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useId, useState, type ReactNode } from "react";
 import { usePathname } from "next/navigation";
 import { useDialKitController, type DialConfig, type UseDialOptions } from "dialkit";
 import { nativeKind, nativeSettings } from "../brand-lab/native-settings";
@@ -11,6 +11,7 @@ import { DEFAULT_BRAND } from "../brand-lab/model";
 import "./brand-lab-transfer.css";
 import { sceneLabel, usesBrandMedia } from "../brand-lab/model";
 
+const TransferLinkContext = createContext<{ setup: BrandLabSetup | null; href: string } | null>(null);
 const TransferContext = createContext<BrandLabSetup | null>(null);
 const EditorValuesContext = createContext<((values: Record<string, unknown>) => void) | null>(null);
 const NativeSettingsContext = createContext<((settings: NativeSnapshot) => void) | null>(null);
@@ -29,16 +30,43 @@ export function BrandLabTransfer({ setup, children }: { setup: BrandLabSetup | n
   const registerNative = useCallback((next: NativeSnapshot) => setNative(current => JSON.stringify(current) === JSON.stringify(next) ? current : next), []);
   const returnSetup = id ? createSetup(setup?.brand ?? DEFAULT_BRAND, id, setup?.palette ?? "Original", setup?.treatments ?? DEFAULT_TREATMENTS, values ? editorTuning(id, values) : setup?.tuning ?? {}, setup?.scene ?? "campaign", setup?.copy ?? {}, native ?? setup?.editorNative) : null;
   return <EditorValuesContext.Provider value={register}><NativeSettingsContext.Provider value={registerNative}><TransferContext.Provider value={setup}>
-    {setup && <div className="brandLabTransferNotice" role="status">
-      <span>From Brand Lab · temporary editor session. Your saved settings stay intact. Your selected preset and settings return with you.
-        {setup.missing.includes("media") && " Uploaded campaign media is excluded from this setup link. Replace it here if needed."}
-      </span>
-      {usesBrandMedia(setup.shaderId, setup.brand.mediaType) && <button type="button" onClick={() => document.querySelector<HTMLInputElement>(".experiment input[type=file]")?.click()}>{setup.missing.includes("media") ? "Replace media" : "Change media"}</button>}
-      <a href={`/brand-lab?${setupQuery(returnSetup ?? setup)}`}>Use preset in {sceneLabel(setup.scene)} ↗</a>
-    </div>}
-    {!setup && returnSetup && <div className="brandLabTransferNotice brandLabTransferEntry"><span>See this shader in a designed context. Its selected preset and settings come with you.</span><a href={`/brand-lab?${setupQuery(returnSetup)}`}>Use in Brand Lab ↗</a></div>}
+    <TransferLinkContext.Provider value={returnSetup ? { setup, href: `/brand-lab?${setupQuery(returnSetup)}` } : null}>
     {children}
+    </TransferLinkContext.Provider>
   </TransferContext.Provider></NativeSettingsContext.Provider></EditorValuesContext.Provider>;
+}
+
+export function BrandLabHeaderControl() {
+  const transfer = useContext(TransferLinkContext);
+  const root = useRef<HTMLDetailsElement>(null);
+  const descriptionId = useId();
+  useEffect(() => {
+    const dismiss = (event: PointerEvent) => {
+      if (root.current && !root.current.contains(event.target as Node)) root.current.open = false;
+    };
+    document.addEventListener("pointerdown", dismiss);
+    return () => document.removeEventListener("pointerdown", dismiss);
+  }, []);
+  if (!transfer) return null;
+  const { setup, href } = transfer;
+  return <details className="brandLabHeaderControl" ref={root} onKeyDown={event => {
+    if (event.key === "Escape" && root.current?.open) {
+      event.stopPropagation();
+      root.current.open = false;
+      root.current.querySelector("summary")?.focus();
+    }
+  }} onBlur={event => {
+    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) event.currentTarget.open = false;
+  }}>
+    <summary aria-controls={descriptionId}>Use in Brand Lab <svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden="true"><path d="m4 6 4 4 4-4" /></svg></summary>
+    <div className="brandLabTransferPopover" id={descriptionId}>
+      <span className="brandLabTransferLabel">{setup ? "Your Brand Lab session" : "Shader, meet composition."}</span>
+      <p>{setup ? "Your selected preset and settings return with you. Saved editor settings stay intact." : "Try your current preset across campaign, identity, and web. Your settings come with you."}</p>
+      {setup?.missing.includes("media") && <p>Uploaded media is excluded from this link. Replace it here if needed.</p>}
+      {setup && usesBrandMedia(setup.shaderId, setup.brand.mediaType) && <button className="brandLabTransferMedia" type="button" onClick={() => document.querySelector<HTMLInputElement>(".experiment input[type=file]")?.click()}>{setup.missing.includes("media") ? "Replace media" : "Change media"}</button>}
+      <a className="brandLabTransferAction" href={href}>{setup ? `Return to ${sceneLabel(setup.scene)}` : "Open Brand Lab"}<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></a>
+    </div>
+  </details>;
 }
 
 function transferValues(setup: BrandLabSetup): Record<string, unknown> {

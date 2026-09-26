@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransferDial, useBrandLabTransfer, useCaptureNativeSettings } from "./BrandLabTransfer";
+import { BrandLabHeaderControl, useTransferDial, useBrandLabTransfer, useCaptureNativeSettings } from "./BrandLabTransfer";
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
@@ -151,7 +151,7 @@ export function ExposureGridLab() {
 
   return (
     <div className="labShell detailShell">
-      <header className="topbar"><Link className="wordmark" href="/" aria-label="Back to Shaders by Solace catalog"><ShadersLogo className="solaceLogo" /><span>Shaders</span><span className="brandDivider">/</span><span className="brandSection">Solace</span></Link></header>
+      <header className="topbar"><Link className="wordmark" href="/" aria-label="Back to Shaders by Solace catalog"><ShadersLogo className="solaceLogo" /><span>Shaders</span><span className="brandDivider">/</span><span className="brandSection">Solace</span></Link><BrandLabHeaderControl /></header>
       <main className="workspace detailWorkspace" id="top">
         <section className="experiment">
           <div className="experimentHeading"><div><Link className="backLink" href="/">← All shaders</Link><div className="eyebrow">Experiment 011 / Editorial media</div><h1>Exposure grid</h1></div><p>A camera-clean media grid where selected frames become alternate exposures, color samples, or tactile material.</p></div>

@@ -52,7 +52,7 @@ try {
       assert.notEqual(current, old, shader.name + ' ' + key + ' does not adjust');
       assert.equal((await readNative())[key], current, 'control does not reach the native renderer');
       const setup = await snapshot();
-      assert.equal(setup.version, 2); assert.equal(setup.tuning[key], current); assert.equal(setup.native[key], current);
+      assert.equal(setup.version, 3); assert.equal(setup.tuning[key], current); assert.equal(setup.native[key], current);
     }
     assert.ok(await page.locator('.bl-source canvas').evaluate(canvas => canvas === window.__blSource), 'live adjustments remounted the native source');
     results.push({ id: shader.name, controls: Object.keys((await snapshot()).tuning), nativeValuesMatch: true });
@@ -70,7 +70,7 @@ try {
       await page.getByRole('button', { name: 'View configured JSX' }).click();
       assert.ok((await page.locator('#configured-jsx').textContent()).includes('softness={' + setup.native.softness.toFixed(3) + '}'), 'configured JSX loses softness precision');
     }
-    await page.locator('.brandLabTransferNotice a').click(); await ready();
+    await page.locator('.brandLabHeaderControl summary').click(); await page.locator('.brandLabTransferAction').click(); await ready();
     await page.getByRole('button', { name: 'Tune shader', exact: true }).click();
   }
   await page.getByRole('button', { name: 'Viscous Cursor Dye', exact: true }).click(); await ready();
@@ -83,14 +83,15 @@ try {
   assert.equal((await readNative()).colors.primary, '#1236ff');
   assert.deepEqual((await snapshot()).tuning, kept.tuning, 'palette switching loses adjustments');
   await drawer.getByRole('button', { name: 'Brand', exact: true }).click();
-  assert.equal((await readNative()).colors.primary, '#d6f369');
+  const brandPrimary = (await snapshot()).brand.primary;
+  assert.equal((await readNative()).colors.primary, brandPrimary);
   const colors = drawer.locator('.bl-tune-colors');
   assert.equal(await colors.getAttribute('open'), null, 'brand colors should start collapsed');
   await colors.locator('summary').click();
   const hex = colors.getByRole('textbox', { name: 'Hex color' });
   await hex.fill('#c4e85a'); await hex.press('Enter');
   assert.equal((await readNative()).colors.primary.toLowerCase(), '#c4e85a');
-  await hex.fill('#d6f369'); await hex.press('Enter');
+  await hex.fill(brandPrimary); await hex.press('Enter');
   await colors.locator('summary').click();
   // The actual DialKit track must support pointer editing as well as keyboard.
   const track = drawer.locator('.dialkit-slider').first(); const box = await track.boundingBox();
@@ -108,14 +109,14 @@ try {
   const transfer = await drawer.getByRole('link', { name: 'Explore full editor' }).getAttribute('href');
   await page.goto(new URL(transfer, origin).href); await page.locator('.stage canvas').waitFor();
   await page.waitForTimeout(100); assert.deepEqual(await readNative('.stage canvas'), expected.native);
-  await page.locator('.brandLabTransferNotice a').click(); await ready();
+  await page.locator('.brandLabHeaderControl summary').click(); await page.locator('.brandLabTransferAction').click(); await ready();
   await page.getByRole('button', { name: 'Tune shader', exact: true }).click();
   await drawer.getByRole('button', { name: 'Reset shader settings' }).click();
   assert.deepEqual((await snapshot()).tuning, {});
   assert.equal((await readNative()).distortion, .8);
   const legacy = await snapshot(); legacy.version = 1; delete legacy.tuning;
   await page.goto(origin + '/brand-lab?brandLab=' + encodeURIComponent(JSON.stringify(legacy))); await ready();
-  assert.equal((await snapshot()).version, 2, 'v1 setup is not migrated');
+  assert.equal((await snapshot()).version, 3, 'v1 setup is not migrated');
   const invalid = await snapshot(); invalid.tuning = { distortion: 999 }; invalid.native.distortion = 999;
   await page.goto(origin + '/brand-lab?brandLab=' + encodeURIComponent(JSON.stringify(invalid)));
   assert.match(await page.locator('.bl-footer').textContent(), /invalid or unsupported/);

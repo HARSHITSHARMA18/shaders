@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransferDial, useBrandLabTransfer, useCaptureNativeSettings } from "./BrandLabTransfer";
+import { BrandLabHeaderControl, useTransferDial, useBrandLabTransfer, useCaptureNativeSettings } from "./BrandLabTransfer";
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
@@ -193,6 +193,7 @@ export function BlackholeLensingLab() {
           <span className="brandDivider">/</span>
           <span className="brandSection">Solace</span>
         </Link>
+        <BrandLabHeaderControl />
       </header>
       <main className="workspace detailWorkspace" id="top">
         <section className="experiment">

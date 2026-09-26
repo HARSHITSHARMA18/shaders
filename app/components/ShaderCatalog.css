@@ -1,0 +1,52 @@
+.catalogPage > .catalogHeader { gap:24px; }
+.catalogPage .catalogMeta { gap:28px; flex-shrink:0; }
+.catalogPage .catalogNavLink,
+.catalogPage .githubLink {
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  width:auto;
+  height:auto;
+  min-height:32px;
+  padding:0;
+  color:var(--ink);
+  border:0;
+  border-radius:0;
+  font-size:12px;
+  font-weight:500;
+  line-height:1.2;
+  letter-spacing:-.01em;
+  text-decoration:none;
+  white-space:nowrap;
+}
+.catalogPage .githubLink .githubLabel { color:inherit; font:inherit; opacity:.55; }
+.catalogPage .githubLink svg { width:14px; height:14px; flex-shrink:0; color:currentColor; }
+.catalogPage .catalogNavLink>span { font-size:14px; color:#777d73; }
+.catalogPage .githubLink:hover { background:transparent; }
+.catalogPage .catalogMeta a:hover { text-decoration:none; }
+.catalogPage .catalogMeta a:focus-visible { outline:2px solid #747b6e; outline-offset:5px; }
+.catalogPage .catalogMaker {
+  display:inline-flex;
+  align-items:center;
+  gap:5px;
+  min-height:20px;
+  padding-left:28px;
+  border-left:1px solid #10121024;
+  color:#777d73;
+  font-family:inherit;
+  font-size:11px;
+  line-height:1.4;
+  letter-spacing:0;
+  text-transform:none;
+  white-space:nowrap;
+}
+.catalogPage .catalogMakerLabel { color:var(--ink); opacity:.55; }
+.catalogPage .catalogMaker a { color:var(--ink); }
+
+@media(max-width:720px) {
+  .catalogPage > .catalogHeader { height:66px; min-height:66px; flex-wrap:nowrap; gap:12px; padding:0 var(--catalog-gutter); }
+  .catalogPage .catalogMeta { margin-left:auto; gap:18px; }
+  .catalogPage .catalogMaker { display:none; }
+  .catalogPage .wordmark { gap:7px; font-size:13px; white-space:nowrap; }
+  .catalogPage .wordmark .solaceLogo { width:24px; }
+}

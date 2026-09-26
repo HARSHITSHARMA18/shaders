@@ -57,9 +57,10 @@ try {
   assert.equal(native.trail, 0.85);
   assert.equal(native.speed, 0.6);
   assert.equal(native.colors.primary.toLowerCase(), '#a442cc');
-  const link = page.getByRole('link', { name: 'Use in Brand Lab' });
+  await page.locator('.brandLabHeaderControl summary').click();
+  const link = page.getByRole('link', { name: 'Open Brand Lab' });
   await page.waitForFunction(() => {
-    const href = [...document.querySelectorAll('a')].find(a => a.textContent?.includes('Use in Brand Lab'))?.href;
+    const href = [...document.querySelectorAll('a')].find(a => a.textContent?.includes('Open Brand Lab'))?.href;
     return href && JSON.parse(new URL(href).searchParams.get('brandLab'))?.editorNative?.distortion === 1.25;
   });
   const transfer = JSON.parse(new URL(await link.getAttribute('href'), origin).searchParams.get('brandLab'));
@@ -95,6 +96,7 @@ try {
   await page.getByRole('button', { name: 'Resume shader motion' }).click();
   await page.locator('.bl-source canvas').waitFor();
   await page.waitForFunction(previous => document.querySelector('.bl-poster canvas[data-material]')?.toDataURL() !== previous, held);
+  await page.locator('[data-surface-id="poster"]').click();
   await downloadOnce();
   assert.equal(await page.getByRole('button', { name: 'Resume shader motion' }).getAttribute('aria-pressed'), 'true', 'download did not hold its frame');
   const automatic = await canvas.evaluate(node => node.toDataURL());

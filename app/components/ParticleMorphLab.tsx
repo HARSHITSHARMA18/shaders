@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransferDial, useBrandLabTransfer, useCaptureNativeSettings } from "./BrandLabTransfer";
+import { BrandLabHeaderControl, useTransferDial, useBrandLabTransfer, useCaptureNativeSettings } from "./BrandLabTransfer";
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
@@ -195,6 +195,7 @@ export function ParticleMorphLab() {
           <span className="brandDivider">/</span>
           <span className="brandSection">Solace</span>
         </Link>
+        <BrandLabHeaderControl />
       </header>
 
       <main className="workspace detailWorkspace" id="top">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransferDial, useCaptureNativeSettings } from "./BrandLabTransfer";
+import { BrandLabHeaderControl, useTransferDial, useCaptureNativeSettings } from "./BrandLabTransfer";
 
 import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
@@ -166,6 +166,7 @@ export function ShaderLab() {
           <span className="brandDivider">/</span>
           <span className="brandSection">Solace</span>
         </Link>
+        <BrandLabHeaderControl />
       </header>
 
       <main className="workspace detailWorkspace" id="top">

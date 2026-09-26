@@ -151,6 +151,10 @@ export function ShaderMaterial({ id, brand, palette, native, sceneRef, onStatus,
           frame = requestAnimationFrame(copy);
           return;
         }
+        if (id === "specimen-index" && source.dataset.mediaReady !== "true") {
+          frame = requestAnimationFrame(copy);
+          return;
+        }
         hasDrawn = true;
         // Sample the hidden source during the animation-frame phase. Its last
         // rendered buffer is retained because it never enters page compositing.
@@ -179,7 +183,7 @@ export function ShaderMaterial({ id, brand, palette, native, sceneRef, onStatus,
         });
         last = now - (now - last) % interval; copies++;
         if (copies === 2) onStatus("");
-        if (reducedRef.current && now - started > 1600) { setRunning(false); finished = true; return; }
+        if (reducedRef.current && copies >= 2 && now - started > 1600) { setRunning(false); finished = true; return; }
       }
       // Lazy module loading and a mounted renderer's first draw are different
       // phases. A slow chunk must not consume the first-draw grace period.

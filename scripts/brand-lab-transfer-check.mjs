@@ -62,15 +62,16 @@ try {
     if (shader.name === 'particle-assembly') { delete expected.svg; delete native.svg; }
     assert.deepEqual(native, expected, shader.name + ' transferred settings differ');
     await page.waitForFunction(expected => {
-      const href = document.querySelector('.brandLabTransferNotice a')?.href;
+      const href = document.querySelector('.brandLabTransferAction')?.href;
       return href && JSON.stringify(JSON.parse(new URL(href).searchParams.get('brandLab')).editorNative) === JSON.stringify(expected);
     }, actual.settings);
     if (['refractive-lens','exposure-grid','fluid-distortion','blackhole-lensing','specimen-index','thermal-etch-burn'].includes(shader.name)) assert.equal(actual.src, setup.brand.media);
-    assert.equal(await page.locator('.brandLabTransferNotice').count(), 1);
+    assert.equal(await page.locator('.brandLabHeaderControl').count(), 1);
     assert.equal(await page.evaluate(() => localStorage.getItem('dialkit:solace-viscous-cursor-dye')), saved, 'saved values/presets changed');
     results.push({ id: shader.name, nativeSettingsMatch: true });
     console.log(shader.name + ': native settings match');
-    await page.locator('.brandLabTransferNotice a').click();
+    await page.locator('.brandLabHeaderControl summary').click();
+    await page.locator('.brandLabTransferAction').click();
     await page.locator('.bl-shader-rail').waitFor();
   }
   await page.getByRole('button', { name: 'Viscous Cursor Dye', exact: true }).click();
@@ -89,7 +90,7 @@ try {
   await page.goto(origin + '/shaders/viscous-cursor-dye');
   await page.locator('.stage canvas').waitFor(); await page.waitForTimeout(250);
   assert.equal((await readNative()).settings.distortion, 1.25);
-  assert.equal(await page.getByRole('link', { name: 'Use in Brand Lab' }).count(), 1);
+  assert.equal(await page.locator('.brandLabHeaderControl summary').count(), 1);
   await page.goto(base);
   await page.getByRole('button', { name: 'Viscous Cursor Dye', exact: true }).click();
   await page.getByRole('button', { name: 'Copy setup link', exact: true }).click();
@@ -122,6 +123,7 @@ try {
   await page.getByRole('button', { name: 'Thermal Etch Burn', exact: true }).click();
   await page.locator('.bl-footer a').click();
   await page.locator('.stage canvas').waitFor();
+  await page.locator('.brandLabHeaderControl summary').click();
   assert.equal(await page.getByRole('button', { name: 'Replace media', exact: true }).count(), 1);
   await page.getByLabel('Replace campaign image', { exact: true }).setInputFiles({ name: 'replacement.png', mimeType: 'image/png', buffer: png });
   await page.waitForFunction(() => {

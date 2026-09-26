@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { SolaceLogo } from "./SolaceLogo";
 import { ShadersLogo } from "./ShadersLogo";
+import { BrandLabAnnouncement } from "./announcements";
+import "./ShaderCatalog.css";
 import {
   FieldShaderPalette,
   FieldShaderVariant,
@@ -89,6 +91,7 @@ const liveStudies: Array<{
 export function ShaderCatalog() {
   return (
     <div className="catalogPage">
+      <BrandLabAnnouncement />
       <header className="catalogHeader">
         <Link className="wordmark" href="/" aria-label="Shaders by Solace home">
           <ShadersLogo className="solaceLogo" />
@@ -96,16 +99,17 @@ export function ShaderCatalog() {
           <span className="brandDivider">/</span>
           <span className="brandSection">Solace</span>
         </Link>
-        <div className="catalogMeta">
-          <Link href="/brand-lab" style={{ color: "var(--ink)", fontSize: 12, textDecoration: "none" }}>Brand Lab ↗</Link>
+        <nav className="catalogMeta" aria-label="Main navigation">
+          <Link href="/brand-lab" className="catalogNavLink">Brand Lab <span aria-hidden="true">↗</span></Link>
           <a
             className="githubLink"
             href="https://github.com/HARSHITSHARMA18/shaders"
             target="_blank"
             rel="noreferrer"
-            aria-label="View Shaders on GitHub"
-            title="View source on GitHub"
+            aria-label="Star Shaders on GitHub"
+            title="Star Shaders on GitHub"
           >
+            <span className="githubLabel">Star on</span>
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path
                 fill="currentColor"
@@ -114,12 +118,12 @@ export function ShaderCatalog() {
             </svg>
           </a>
           <span className="catalogMaker">
-            Building cool stuff{" "}
+            <span className="catalogMakerLabel">By</span>{" "}
             <a href="https://x.com/harshitlog" target="_blank" rel="noreferrer">
               @harshitlog
             </a>
           </span>
-        </div>
+        </nav>
       </header>
 
       <main>

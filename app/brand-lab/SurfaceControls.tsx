@@ -26,15 +26,31 @@ export function SurfaceControls({ surface, treatment, enabled, paused, materialR
       const asset = sceneRef.current?.querySelector(`[data-surface-id="${surface.id}"]`);
       if (!asset) return;
       const rect = asset.getBoundingClientRect();
-      const width = 264, height = panel.current?.offsetHeight ?? 190;
-      const left = rect.right + width + 16 < innerWidth - 20 ? rect.right + 16 : Math.max(20, rect.right - width - 12);
-      setPosition({ left, top: Math.max(20, Math.min(rect.top + 12, innerHeight - height - 20)), visible: rect.bottom > 0 && rect.top < innerHeight });
+      const width = panel.current?.offsetWidth || 280;
+      const height = panel.current?.offsetHeight || 220;
+      let left: number;
+      if (rect.right + width + 16 < innerWidth - 20) {
+        left = rect.right + 16;
+      } else if (rect.left - width - 16 >= 20) {
+        left = rect.left - width - 16;
+      } else {
+        left = Math.max(20, Math.min(rect.right - width - 12, innerWidth - width - 20));
+      }
+      const top = Math.max(20, Math.min(rect.top + 12, Math.max(20, innerHeight - height - 20)));
+      setPosition({ left, top, visible: rect.bottom > 0 && rect.top < innerHeight });
     };
     const schedule = () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(update); };
     schedule();
     window.addEventListener("resize", schedule);
     window.addEventListener("scroll", schedule, true);
-    return () => { cancelAnimationFrame(frame); window.removeEventListener("resize", schedule); window.removeEventListener("scroll", schedule, true); };
+    const observer = typeof ResizeObserver !== "undefined" && panel.current ? new ResizeObserver(schedule) : null;
+    if (panel.current) observer?.observe(panel.current);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("resize", schedule);
+      window.removeEventListener("scroll", schedule, true);
+      observer?.disconnect();
+    };
   }, [surface.id, sceneRef]);
   useEffect(() => {
     const handlePointerDown = (event: PointerEvent) => {
@@ -54,7 +70,7 @@ export function SurfaceControls({ surface, treatment, enabled, paused, materialR
   return <div id="bl-surface-controls" ref={panel} className="bl-surface-controls" role="region" aria-label={`${surface.label} controls`} style={{ left: position?.left, top: position?.top, visibility: position?.visible ? "visible" : "hidden" }} onKeyDown={event => {
     if (event.key === "Escape") { event.preventDefault(); close(); }
   }}>
-    <div className="bl-surface-controls-heading"><span><small>SURFACE TREATMENT</small><strong>{surface.label}</strong></span><button aria-label="Close surface controls" onClick={close}>×</button></div>
+    <div className="bl-surface-controls-heading"><span><small>SURFACE TREATMENT</small><strong>{surface.label}</strong></span><button type="button" aria-label="Close surface controls" onClick={close}><svg viewBox="0 0 20 20" aria-hidden="true" width="13" height="13"><path d="m5 5 10 10M15 5 5 15" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg></button></div>
     <PlacementPicker value={treatment.placement} modes={modes ?? surface.modes} onChange={placement => onChange({ placement })} />
     <label className="bl-strength"><span>Strength</span><output>{treatment.intensity}%</output><input aria-label="Material strength" type="range" min="0" max="100" value={treatment.intensity} disabled={!enabled} onChange={event => onChange({ intensity: Number(event.target.value) })} /></label>
     <p>{enabled ? "Strength blends material with the original." : "Choose a material to apply a treatment."}</p>

@@ -159,7 +159,7 @@ export function BrandLab({ shaders, initialSetup, invalidSetup = false }: { shad
     }} onKeyDown={event => {
       if (event.key === "Escape" && (event.target as HTMLElement).closest(".paletteEditorMeta")) { event.preventDefault(); event.stopPropagation(); }
     }}>
-      <div className="bl-dialog-top"><span className="bl-kicker">A LIGHTWEIGHT IDENTITY</span><button aria-label="Close brand controls" onClick={() => dialogRef.current?.close()}>×</button></div>
+      <div className="bl-dialog-top"><span className="bl-kicker">A LIGHTWEIGHT IDENTITY</span><button type="button" aria-label="Close brand controls" onClick={() => dialogRef.current?.close()}><svg viewBox="0 0 20 20" aria-hidden="true" width="13" height="13"><path d="m5 5 10 10M15 5 5 15" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg></button></div>
       <h2 id="bl-brand-title">Make it yours.</h2><p>Just enough to see your brand in a new light.</p>
       <label>Brand name<input autoFocus value={brand.name} maxLength={24} onChange={event => { setPaused(false); setBrand(current => ({ ...current, name: event.target.value })); }} /></label>
       <label>Campaign line<input value={brand.tagline} maxLength={70} onChange={event => { setPaused(false); setBrand(current => ({ ...current, tagline: event.target.value })); }} /></label>
@@ -169,7 +169,7 @@ export function BrandLab({ shaders, initialSetup, invalidSetup = false }: { shad
       <div className="bl-uploads"><label className="bl-upload">{brand.logo ? "Replace logo" : "+ Logo / wordmark"}<input aria-label="Upload logo" type="file" accept="image/*" disabled={uploading} onChange={event => { void upload(event.target.files?.[0], "logo"); event.target.value = ""; }} /></label><label className="bl-upload">+ Image / video<input aria-label="Upload campaign media" type="file" accept="image/*,video/*" disabled={uploading} onChange={event => { void upload(event.target.files?.[0], "media"); event.target.value = ""; }} /></label></div>
       <small>Files stay in this browser. Images ≤12 MB · Video ≤40 MB.</small>
       <div className="bl-upload-error" role="status">{uploading ? "Opening your asset…" : uploadError}</div>
-      <div className="bl-dialog-bottom"><button onClick={resetBrand}>Reset identity</button><button className="bl-brand-button" onClick={() => dialogRef.current?.close()}>Back to canvas ↗</button></div>
+      <div className="bl-dialog-bottom"><button type="button" onClick={resetBrand}>Reset identity</button><button type="button" className="bl-brand-button" onClick={() => dialogRef.current?.close()}>Back to canvas ↗</button></div>
     </dialog>
   </div>;
 }

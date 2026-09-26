@@ -36,7 +36,7 @@ export function PlacementPicker({ value, modes, onChange }: {
     if (event.key === "Tab") setOpen(false);
   }}>
     <span className="bl-placement-label">Placement</span>
-    <button ref={trigger} className="bl-placement-trigger" aria-label={`Placement: ${value}`} aria-haspopup="listbox" aria-expanded={open} aria-controls={open ? listId : undefined} onClick={() => { if (open) setOpen(false); else openMenu(); }} onKeyDown={event => {
+    <button ref={trigger} type="button" className="bl-placement-trigger" aria-label={`Placement: ${value}`} aria-haspopup="listbox" aria-expanded={open} aria-controls={open ? listId : undefined} onClick={() => { if (open) setOpen(false); else openMenu(); }} onKeyDown={event => {
       if (event.key === "ArrowDown" || event.key === "ArrowUp") { event.preventDefault(); openMenu(); }
     }}>{value}<svg viewBox="0 0 12 12" aria-hidden="true"><path d="m3 4.5 3 3 3-3" fill="none" stroke="currentColor" strokeWidth="1.2" /></svg></button>
     {open && <div id={listId} role="listbox" aria-label="Placement" className="bl-placement-menu" style={{ top: above ? "auto" : "calc(100% + 8px)", bottom: above ? "calc(100% + 8px)" : "auto" }} onKeyDown={event => {
@@ -45,7 +45,7 @@ export function PlacementPicker({ value, modes, onChange }: {
       const target = event.key === "Home" ? 0 : event.key === "End" ? options.length - 1 : event.key === "ArrowDown" ? (index + 1) % options.length : event.key === "ArrowUp" ? (index + options.length - 1) % options.length : null;
       if (target !== null) { event.preventDefault(); options[target]?.focus(); }
     }}>
-      {modes.map(mode => <button key={mode} role="option" aria-selected={mode === value} tabIndex={-1} onClick={() => { onChange(mode); close(); }}><span><strong>{mode}</strong><small>{descriptions[mode]}</small></span><span aria-hidden="true">{mode === value ? "✓" : ""}</span></button>)}
+      {modes.map(mode => <button key={mode} type="button" role="option" aria-selected={mode === value} tabIndex={-1} onClick={() => { onChange(mode); close(); }}><span><strong>{mode}</strong><small>{descriptions[mode]}</small></span><span aria-hidden="true" className="bl-placement-check">{mode === value ? "✓" : ""}</span></button>)}
     </div>}
   </div>;
 }

@@ -514,6 +514,7 @@ export function SpecimenIndex({
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
+    delete canvas.dataset.mediaReady;
     const gl = canvas.getContext("webgl2", { alpha: false, antialias: true, powerPreference: "high-performance" });
     if (!gl) return;
     const vertex = compile(gl, gl.VERTEX_SHADER, VERTEX);
@@ -575,6 +576,7 @@ export function SpecimenIndex({
     };
     let image: HTMLImageElement | null = null;
     let video: HTMLVideoElement | null = null;
+    let mediaLoaded = !src;
     const inferredVideo = mediaType === "video" || (mediaType === "auto" && Boolean(src?.match(/\.(mp4|webm|mov)(\?|$)/i)));
     if (src && inferredVideo) {
       video = document.createElement("video");
@@ -586,6 +588,7 @@ export function SpecimenIndex({
       video.addEventListener("loadeddata", () => {
         sourceAspect = video!.videoWidth / Math.max(video!.videoHeight, 1);
         updateFeatures(video!);
+        mediaLoaded = true;
         void video!.play().catch(() => undefined);
       }, { once: true });
     } else if (src) {
@@ -597,7 +600,9 @@ export function SpecimenIndex({
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image!);
         updateFeatures(image!);
+        mediaLoaded = true;
       };
+      image.onerror = () => { mediaLoaded = true; };
       image.src = src;
     }
 
@@ -763,6 +768,7 @@ export function SpecimenIndex({
       gl.uniform3fv(uniforms.accent, parseColor(current.colors.accent));
       gl.uniform3fv(uniforms.secondary, parseColor(current.colors.secondary));
       gl.drawArrays(gl.TRIANGLES, 0, 3);
+      if (mediaLoaded) canvas.dataset.mediaReady = "true";
       frame = requestAnimationFrame(render);
     };
     frame = requestAnimationFrame(render);
@@ -775,7 +781,7 @@ export function SpecimenIndex({
       canvas.removeEventListener("pointerleave", leave);
       canvas.removeEventListener("click", activate);
       canvas.removeEventListener("keydown", keydown);
-      if (image) image.onload = null;
+      if (image) { image.onload = null; image.onerror = null; }
       if (video) {
         video.pause();
         video.removeAttribute("src");
